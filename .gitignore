@@ -1,1 +1,4 @@
-main
+# build targets and make system stuff
+build/
+.sconsign.dblite
+*.o

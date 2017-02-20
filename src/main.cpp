@@ -4,6 +4,8 @@
 #include <cmath>
 #include "renderer.hpp"
 
+#define WRITE_VTK_OUTPUT false
+
 double rand(std::default_random_engine& engine) {
     return (double)engine() / engine.max();
 }
@@ -169,7 +171,7 @@ int main() {
     double k = 500.0;
     double g = 9.81;
     double t = 0.0;
-    double tend = 5.0;
+    double tend = 50.0;
     double dt = 0.1;
     double mass = 1.0 / N;
     double forceScale = 0.000003;
@@ -258,7 +260,9 @@ int main() {
             position[i * 3 + 2] += velocity[i * 3 + 2] * dt;
         }
 
-        writeDensity(density, position, h, N, mass, (int)(t / dt));
+        if (WRITE_VTK_OUTPUT) {
+            writeDensity(density, position, h, N, mass, (int)(t / dt));
+        }
 
         renderPositions(position, &r, N, R);
         r.Render();

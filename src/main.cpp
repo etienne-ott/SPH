@@ -152,10 +152,10 @@ void renderPositions(double* pos, Renderer* r, int N, int R) {
 
     for (int i = 0; i < N; i++) {
         int iposx = (int)(R * pos[i * 3]),
-            iposy = (int)(R * pos[i * 3 + 1]),
-            zrange = (int)(10 * pos[i * 3 + 2]);
-        for (int k = iposx - zrange < 0 ? 0 : iposx - zrange; k < iposx + zrange && k < R; k++) {
-            for (int l = iposy - zrange < 0 ? 0 : iposy - zrange; l < iposy + zrange && l < R; l++) {
+            iposz = (int)(R * pos[i * 3 + 2]),
+            yrange = (int)(10 * pos[i * 3 + 1]);
+        for (int k = iposx - yrange < 0 ? 0 : iposx - yrange; k < iposx + yrange && k < R; k++) {
+            for (int l = iposz - yrange < 0 ? 0 : iposz - yrange; l < iposz + yrange && l < R; l++) {
                 r->SetPixelRGB(k, l, 0, 0, 0);
             }
         }

@@ -42,6 +42,77 @@ void gradKernel(double rx, double ry, double rz, double r, double h, int N, doub
     ret[2] /= (4.0 * h * h * h * N);
 }
 
+void writeDensity(double* density, double* position, double h, int N, double mass, int i) {
+    char* filename = new char[50];
+    sprintf(filename, "VTK/field_%i.vts", i);
+
+    FILE* handle = fopen(filename, "w");
+    delete filename;
+
+    int size = 20;
+    double ds = 1.0 / size;
+
+    fprintf(handle, "<?xml version=\"1.0\"?>\n");
+    fprintf(handle, "<VTKFile type=\"StructuredGrid\">\n");
+    fprintf(handle, "<StructuredGrid WholeExtent=\"0 %i 0 %i 0 %i \">\n", size, size, size);
+    fprintf(handle, "<Piece Extent=\"0 %i 0 %i 0 %i \">\n", size, size, size);
+    fprintf(handle, "<Points>\n");
+    fprintf(handle, "<DataArray type=\"Float64\" format=\"ascii\" NumberOfComponents=\"3\">\n");
+
+    for (int z = 0; z <= size; ++z) {
+        for (int y = 0; y <= size; ++y) {
+            for (int x = 0; x <= size; ++x) {
+                fprintf(handle, "%le %le %le\n",
+                    (double)x * ds,
+                    (double)y * ds,
+                    (double)z * ds
+                );
+            }
+        }
+    }
+
+    fprintf(handle, "</DataArray>\n");
+    fprintf(handle, "</Points>\n");
+    fprintf(handle, "<PointData>\n");
+
+    fprintf(handle,
+    "<DataArray Name=\"%s\" type=\"Float64\" format=\"ascii\">\n", "density");
+
+    for (int z = 0; z <= size; ++z) {
+        for (int y = 0; y <= size; ++y) {
+            for (int x = 0; x <= size; ++x) {
+
+                double sum = 0.0;
+                double distance = 0.0;
+
+                for (int j = 0; j < N; j++) {
+                    distance = pow(
+                        (position[j * 3] - x*ds) * (position[j * 3] - x*ds)
+                            + (position[j * 3 + 1] - y*ds) * (position[j * 3 + 1] - y*ds)
+                            + (position[j * 3 + 2] - z*ds) * (position[j * 3 + 2] - z*ds),
+                        0.5
+                    );
+                    sum += mass * density[j] * kernel(distance, h, N);
+                }
+
+                fprintf(handle, "%le ", (sum > 0.5 ? 1.0 : 0.0));
+            }
+
+            fprintf(handle, "\n");
+        }
+
+        fprintf(handle, "\n");
+    }
+
+    fprintf(handle, "</DataArray>\n");
+    fprintf(handle, "</PointData>\n");
+    fprintf(handle, "</Piece>\n");
+    fprintf(handle, "</StructuredGrid>\n");
+    fprintf(handle, "</VTKFile>\n");
+
+    fclose(handle);
+}
+
 void printField(double* field, int len, int dim) {
     for (int i = 0; i < len; i++) {
         for (int j = 0; j < dim; j++) {
@@ -97,7 +168,7 @@ int main() {
     double h = 0.3;
     double k = 500.0;
     double t = 0.0;
-    double tend = 50.0;
+    double tend = 5.0;
     double dt = 0.1;
     double mass = 1.0 / N;
     double forceScale = 0.000003;
@@ -181,6 +252,8 @@ int main() {
             position[i * 3 + 1] += velocity[i * 3 + 1] * dt;
             position[i * 3 + 2] += velocity[i * 3 + 2] * dt;
         }
+
+        writeDensity(density, position, h, N, mass, (int)(t / dt));
 
         renderPositions(position, &r, N, R);
         r.Render();

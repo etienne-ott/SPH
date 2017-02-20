@@ -167,6 +167,7 @@ int main() {
     int R = 200;
     double h = 0.3;
     double k = 500.0;
+    double g = 9.81;
     double t = 0.0;
     double tend = 5.0;
     double dt = 0.1;
@@ -230,6 +231,7 @@ int main() {
                 vec1[2] = position[i * 3 + 2] - position[j * 3 + 2];
                 distance = pow(vec1[0] * vec1[0] + vec1[1] * vec1[1] + vec1[2] * vec1[2], 0.5);
 
+                // pressure
                 gradKernel(vec1[0], vec1[1], vec1[2], distance, h, N, vec2);
                 tmp = 0.5 * (pressure[i] + pressure[j]) * (mass / density[j]);
 
@@ -237,6 +239,9 @@ int main() {
                 force[i * 3 + 1] -= tmp * vec2[1];
                 force[i * 3 + 2] -= tmp * vec2[2];
             }
+
+            // gravity
+            force[i * 3 + 2] -= density[i] * mass * g;
         }
 
         // Do velocity integration (explicit euler)

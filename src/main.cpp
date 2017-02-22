@@ -1,15 +1,10 @@
 #include <iostream>
-#include <random>
-#include <chrono>
 #include <cmath>
 #include "renderer.hpp"
 #include "kernel.hpp"
+#include "random_pool.hpp"
 
 #define WRITE_VTK_OUTPUT false
-
-double rand(std::default_random_engine& engine) {
-    return (double)engine() / engine.max();
-}
 
 void writeDensity(double* density, double* position, double h, int N, double mass, int i) {
     char* filename = new char[50];
@@ -94,16 +89,16 @@ void printField(double* field, int len, int dim) {
 }
 
 void initFields(int N, double* position, double* velocity, double* force, double* density, double* pressure) {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
-    for (int i = 0; i < N; i++) {
-        position[i * 3] = rand(generator);
-        position[i * 3 + 1] = rand(generator);
-        position[i * 3 + 2] = rand(generator);
+    RandomPool pool = RandomPool();
 
-        velocity[i * 3] = rand(generator) * 0.05 - 0.025;
-        velocity[i * 3 + 1] = rand(generator) * 0.05 - 0.025;
-        velocity[i * 3 + 2] = rand(generator) * 0.05 - 0.025;
+    for (int i = 0; i < N; i++) {
+        position[i * 3] = pool.NextDouble();
+        position[i * 3 + 1] = pool.NextDouble();
+        position[i * 3 + 2] = pool.NextDouble();
+
+        velocity[i * 3] = pool.NextDouble(0.0, 0.1);
+        velocity[i * 3 + 1] = pool.NextDouble(0.0, 0.1);
+        velocity[i * 3 + 2] = pool.NextDouble(0.0, 0.1);
 
         force[i * 3] = 0.0;
         force[i * 3 + 1] = 0.0;

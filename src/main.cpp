@@ -3,45 +3,12 @@
 #include <chrono>
 #include <cmath>
 #include "renderer.hpp"
+#include "kernel.hpp"
 
 #define WRITE_VTK_OUTPUT false
 
 double rand(std::default_random_engine& engine) {
     return (double)engine() / engine.max();
-}
-
-double kernel(double r, double h, int N) {
-    double v = r / h;
-    if (v >= 0.0 && v < 1.0) {
-        v = (4.0 - 6.0 * r * r + 3.0 * r * r * r);
-    } else if (v >= 1.0 && v < 2.0) {
-        v = pow((2.0 - r), 3.0); 
-    } else {
-        return 0.0;
-    }
-    return v / (4.0 * h * h * h * N);
-}
-
-void gradKernel(double rx, double ry, double rz, double r, double h, int N, double* ret) {
-    double v = r / h, ir = 1.0 / r;
-
-    if (v >= 0.0 && v < 1.0) {
-        ret[0] = -12.0 * rx * ir + 9.0 * rx * pow(ir, 2.0);
-        ret[1] = -12.0 * ry * ir + 9.0 * ry * pow(ir, 2.0);
-        ret[2] = -12.0 * rz * ir + 9.0 * rz * pow(ir, 2.0);
-    } else if (v >= 1.0 && v < 2.0) {
-        ret[0] = -3.0 * pow(2.0 - r, 2.0) * rx * ir;
-        ret[1] = -3.0 * pow(2.0 - r, 2.0) * ry * ir;
-        ret[2] = -3.0 * pow(2.0 - r, 2.0) * rz * ir;
-    } else {
-        ret[0] = 0.0;
-        ret[1] = 0.0;
-        ret[2] = 0.0;
-    }
-
-    ret[0] /= (4.0 * h * h * h * N);
-    ret[1] /= (4.0 * h * h * h * N);
-    ret[2] /= (4.0 * h * h * h * N);
 }
 
 void writeDensity(double* density, double* position, double h, int N, double mass, int i) {
@@ -80,6 +47,8 @@ void writeDensity(double* density, double* position, double h, int N, double mas
     fprintf(handle,
     "<DataArray Name=\"%s\" type=\"Float64\" format=\"ascii\">\n", "density");
 
+    Kernel k = Kernel(h, N);
+
     for (int z = 0; z <= size; ++z) {
         for (int y = 0; y <= size; ++y) {
             for (int x = 0; x <= size; ++x) {
@@ -94,7 +63,7 @@ void writeDensity(double* density, double* position, double h, int N, double mas
                             + (position[j * 3 + 2] - z*ds) * (position[j * 3 + 2] - z*ds),
                         0.5
                     );
-                    sum += mass * density[j] * kernel(distance, h, N);
+                    sum += mass * density[j] * k.Function(distance);
                 }
 
                 fprintf(handle, "%le ", (sum > 0.5 ? 1.0 : 0.0));
@@ -187,6 +156,8 @@ int main() {
     double* density = new double[N];
     double* pressure = new double[N];
 
+    Kernel kernel = Kernel(h, N);
+
     initFields(N, position, velocity, force, density, pressure);
 
     renderPositions(position, &r, N, R);
@@ -204,7 +175,7 @@ int main() {
                         + (position[j * 3 + 2] - position[i * 3 + 2]) * (position[j * 3 + 2] - position[i * 3 + 2]),
                     0.5
                 );
-                sum += mass * kernel(distance, h, N);
+                sum += mass * kernel.Function(distance);
             }
             density[i] = sum;
         }
@@ -234,7 +205,7 @@ int main() {
                 distance = pow(vec1[0] * vec1[0] + vec1[1] * vec1[1] + vec1[2] * vec1[2], 0.5);
 
                 // pressure
-                gradKernel(vec1[0], vec1[1], vec1[2], distance, h, N, vec2);
+                kernel.FOD(vec1[0], vec1[1], vec1[2], distance, vec2);
                 tmp = 0.5 * (pressure[i] + pressure[j]) * (mass / density[j]);
 
                 force[i * 3] -= tmp * vec2[0];

@@ -165,8 +165,8 @@ void renderPositions(double* pos, Renderer* r, int N, int R) {
 }
 
 int main() {
-    int N = 20;
-    int R = 200;
+    int N = 50;
+    int R = 400;
     double h = 0.3;
     double k = 500.0;
     double g = 9.81;

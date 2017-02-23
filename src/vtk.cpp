@@ -5,15 +5,15 @@
 using namespace std;
 
 VTK::VTK(string path, const Kernel* kernel, double mass, int size) {
-	_path = path;
-	_kernel = kernel;
-	_mass = mass;
-	_size = size;
-	_count = 1;
+    _path = path;
+    _kernel = kernel;
+    _mass = mass;
+    _size = size;
+    _count = 1;
 }
 
 void VTK::WriteDensity(double* density, double* position) {
-	char* filename = new char[255];
+    char* filename = new char[255];
     sprintf(filename, "%sfield_%i.vts", _path.c_str(), _count);
 
     FILE* handle = fopen(filename, "w");

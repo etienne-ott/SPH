@@ -2,14 +2,14 @@
 #include <cmath>
 
 Kernel::Kernel(double h, int N, double mass) {
-	_h = h;
-	_N = N;
+    _h = h;
+    _N = N;
     _mass = mass;
-	_fac1 = 4.0 * h * h * h * N;
+    _fac1 = 4.0 * h * h * h * N;
 }
 
 double Kernel::Function(double r) const {
-	double v = r / _h;
+    double v = r / _h;
     if (v >= 0.0 && v < 1.0) {
         v = (4.0 - 6.0 * r * r + 3.0 * r * r * r);
     } else if (v >= 1.0 && v < 2.0) {
@@ -21,7 +21,7 @@ double Kernel::Function(double r) const {
 }
 
 void Kernel::FOD(double rx, double ry, double rz, double r, double* ret) {
-	double v = r / _h, ir = 1.0 / r;
+    double v = r / _h, ir = 1.0 / r;
 
     if (v >= 0.0 && v < 1.0) {
         ret[0] = -12.0 * rx * ir + 9.0 * rx * pow(ir, 2.0);

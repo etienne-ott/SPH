@@ -5,20 +5,20 @@
 
 class Renderer {
 public:
-  Renderer();
+    Renderer();
 
-  ~Renderer();
+    ~Renderer();
 
-  void Init(const int &width, const int &height);
+    void Init(const int &width, const int &height);
 
-  void SetPixelRGB(int x, int y, uint8_t r, uint8_t g, uint8_t b);
+    void SetPixelRGB(int x, int y, uint8_t r, uint8_t g, uint8_t b);
 
-  int Render();
+    int Render();
 
 private:
-  int _width;
-  int _height;
-  SDL_Window *_window;
-  SDL_Surface *_screen;
+    int _width;
+    int _height;
+    SDL_Window *_window;
+    SDL_Surface *_screen;
 };
 #endif // __RENDERER_HPP

@@ -31,6 +31,15 @@ public:
     /// @return int A status flag. Is -1 if the screen is locked, 1 otherwise
     int Render();
 
+    /// Renders the positions of the particles in a debug view, where each
+    /// particle is represented on the surface with it's x and z position
+    /// corresponding to the viewport and the size of the square corresponding
+    /// to the z position.
+    ///
+    /// @param position double* The particle positions
+    /// @param N int The number of particles
+    void DebugViewPositions(double* position, int N);
+
 private:
     /// @var _width int The width of the viewport.
     int _width;

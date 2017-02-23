@@ -28,25 +28,6 @@ void initFields(int N, double* position, double* velocity, double* force, double
     }
 }
 
-void renderPositions(double* pos, Renderer* r, int N, int R) {
-    for (int i = 0; i < R; i++) {
-        for (int j = 0; j < R; j++) {
-            r->SetPixelRGB(i, j, 255, 255, 255);
-        }
-    }
-
-    for (int i = 0; i < N; i++) {
-        int iposx = (int)(R * pos[i * 3]),
-            iposz = (int)(R * pos[i * 3 + 2]),
-            yrange = (int)(10 * pos[i * 3 + 1]);
-        for (int k = iposx - yrange < 0 ? 0 : iposx - yrange; k < iposx + yrange && k < R; k++) {
-            for (int l = iposz - yrange < 0 ? 0 : iposz - yrange; l < iposz + yrange && l < R; l++) {
-                r->SetPixelRGB(k, l, 0, 0, 0);
-            }
-        }
-    }
-}
-
 int main() {
     int N = 50;
     int R = 400;
@@ -76,8 +57,7 @@ int main() {
 
     initFields(N, position, velocity, force, density, pressure);
 
-    renderPositions(position, &r, N, R);
-    r.Render();
+    r.DebugViewPositions(position, N);
 
     while (t < tend) {
         // Calculate density
@@ -151,8 +131,7 @@ int main() {
             vtk.WriteDensity(density, position);
         }
 
-        renderPositions(position, &r, N, R);
-        r.Render();
+        r.DebugViewPositions(position, N);
         SDL_Delay(30);
 
         t += dt;

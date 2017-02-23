@@ -26,8 +26,7 @@ public:
     ///
     /// @param density double* The density values of the particles
     /// @param position double* The position values of the particles
-    /// @param N int The number of particles
-    void WriteDensity(double* density, double* position, int N);
+    void WriteDensity(double* density, double* position);
 
 private:
     /// @var _path string The path where the files are saved

@@ -1,9 +1,10 @@
 #include "kernel.hpp"
 #include <cmath>
 
-Kernel::Kernel(double h, int N) {
+Kernel::Kernel(double h, int N, double mass) {
 	_h = h;
 	_N = N;
+    _mass = mass;
 	_fac1 = 4.0 * h * h * h * N;
 }
 
@@ -39,4 +40,21 @@ void Kernel::FOD(double rx, double ry, double rz, double r, double* ret) {
     ret[0] /= _fac1;
     ret[1] /= _fac1;
     ret[2] /= _fac1;
+}
+
+double Kernel::InterpolateDensity(double rx, double ry, double rz, double* density, double* position) const {
+    double sum = 0.0;
+    double distance = 0.0;
+
+    for (int j = 0; j < _N; j++) {
+        distance = pow(
+            (position[j * 3] - rx) * (position[j * 3] - rx)
+                + (position[j * 3 + 1] - ry) * (position[j * 3 + 1] - ry)
+                + (position[j * 3 + 2] - rz) * (position[j * 3 + 2] - rz),
+            0.5
+        );
+        sum += _mass * density[j] * this->Function(distance);
+    }
+
+    return sum;
 }

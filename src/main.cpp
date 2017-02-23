@@ -70,7 +70,7 @@ int main() {
     double* density = new double[N];
     double* pressure = new double[N];
 
-    Kernel kernel = Kernel(h, N);
+    Kernel kernel = Kernel(h, N, mass);
 
     VTK vtk = VTK("VTK/", &kernel, mass, 20);
 
@@ -148,7 +148,7 @@ int main() {
         }
 
         if (WRITE_VTK_OUTPUT) {
-            vtk.WriteDensity(density, position, N);
+            vtk.WriteDensity(density, position);
         }
 
         renderPositions(position, &r, N, R);

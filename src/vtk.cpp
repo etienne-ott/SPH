@@ -12,7 +12,7 @@ VTK::VTK(string path, const Kernel* kernel, double mass, int size) {
 	_count = 1;
 }
 
-void VTK::WriteDensity(double* density, double* position, int N) {
+void VTK::WriteDensity(double* density, double* position) {
 	char* filename = new char[255];
     sprintf(filename, "%sfield_%i.vts", _path.c_str(), _count);
 
@@ -50,26 +50,11 @@ void VTK::WriteDensity(double* density, double* position, int N) {
     for (int z = 0; z <= _size; ++z) {
         for (int y = 0; y <= _size; ++y) {
             for (int x = 0; x <= _size; ++x) {
-
-                double sum = 0.0;
-                double distance = 0.0;
-
-                for (int j = 0; j < N; j++) {
-                    distance = pow(
-                        (position[j * 3] - x*ds) * (position[j * 3] - x*ds)
-                            + (position[j * 3 + 1] - y*ds) * (position[j * 3 + 1] - y*ds)
-                            + (position[j * 3 + 2] - z*ds) * (position[j * 3 + 2] - z*ds),
-                        0.5
-                    );
-                    sum += _mass * density[j] * _kernel->Function(distance);
-                }
-
-                fprintf(handle, "%le ", (sum > 0.5 ? 1.0 : 0.0));
+                double d = _kernel->InterpolateDensity(x*ds, y*ds, z*ds, density, position);
+                fprintf(handle, "%le ", (d > 0.5 ? 1.0 : 0.0));
             }
-
             fprintf(handle, "\n");
         }
-
         fprintf(handle, "\n");
     }
 

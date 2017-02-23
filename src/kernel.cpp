@@ -7,7 +7,7 @@ Kernel::Kernel(double h, int N) {
 	_fac1 = 4.0 * h * h * h * N;
 }
 
-double Kernel::Function(double r) {
+double Kernel::Function(double r) const {
 	double v = r / _h;
     if (v >= 0.0 && v < 1.0) {
         v = (4.0 - 6.0 * r * r + 3.0 * r * r * r);

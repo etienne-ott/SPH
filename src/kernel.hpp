@@ -13,7 +13,7 @@ public:
     ///
     /// @param r double The distance to evaluate
     /// @return double The value of the kernel function
-    double Function(double r);
+    double Function(double r) const;
 
     /// Returns the first order derivate of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The

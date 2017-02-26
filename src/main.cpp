@@ -20,7 +20,7 @@ int main() {
 
     Compute compute = Compute(N, &kernel);
 
-    VTK vtk = VTK("VTK/", &kernel, 1/N, 20);
+    VTK vtk = VTK("VTK/", &kernel, 20);
 
     r.DebugViewPositions(compute.GetPosition(), N);
 

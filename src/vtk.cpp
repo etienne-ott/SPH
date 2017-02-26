@@ -4,10 +4,9 @@
 
 using namespace std;
 
-VTK::VTK(string path, const Kernel* kernel, double mass, int size) {
+VTK::VTK(string path, const Kernel* kernel, int size) {
     _path = path;
     _kernel = kernel;
-    _mass = mass;
     _size = size;
     _count = 1;
 }

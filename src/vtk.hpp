@@ -16,10 +16,9 @@ public:
     ///   takes place.
     /// @param kernel Kernel* The kernel to be used to interpolate the
     ///   density between particles
-    /// @param mass double The mass of a single particle
     /// @param size int The size of the regular grid, onto which the density
     ///   values are interpolated
-    VTK(string path, const Kernel* kernel, double mass, int size);
+    VTK(string path, const Kernel* kernel, int size);
 
     /// Writes the density out as a VTK file, interpolating the values on a
     /// regular grid.

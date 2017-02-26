@@ -5,6 +5,20 @@
 
 #define WRITE_VTK_OUTPUT false
 
+/// Checks if there has been a SDL_QUIT event since the last time SLD events
+/// were checked.
+///
+/// @param event SDL_Event* A variable where the event (if any) will be stored
+/// @return bool If there has been a SDL_QUIT event
+bool checkQuitSLDEvent(SDL_Event* event) {
+    if (SDL_PollEvent(event)) {
+        if (event->type == SDL_QUIT) {
+            return true;
+        }
+    }
+    return false;
+}
+
 int main() {
     double h = 0.3;
     int N = 50;
@@ -22,9 +36,12 @@ int main() {
 
     VTK vtk = VTK("VTK/", &kernel, 20);
 
+    bool running = true;
+    SDL_Event event;
+
     r.DebugViewPositions(compute.GetPosition(), N);
 
-    while (t < tend) {
+    while (t < tend && running) {
         compute.Timestep();
 
         if (WRITE_VTK_OUTPUT) {
@@ -32,20 +49,14 @@ int main() {
         }
 
         r.DebugViewPositions(compute.GetPosition(), N);
+        running = !checkQuitSLDEvent(&event);
 
         t += dt;
     }
 
-    bool running = true;
-    SDL_Event event;
-
     while (running) {
         SDL_Delay(30);
-        if (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
-            }
-        }
+        running = !checkQuitSLDEvent(&event);
     }
 
     return 0;

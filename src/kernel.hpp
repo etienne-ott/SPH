@@ -16,7 +16,7 @@ public:
     /// @return double The value of the kernel function
     double Function(double r) const;
 
-    /// Returns the first order derivate of the kernel function evaluated with
+    /// Returns the first order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The
     /// distance r could be calculated within the kernel, but since it is
     /// often necessarily calculated beforehand anyway, it is expected to be
@@ -28,6 +28,19 @@ public:
     /// @param r double The scalar distance value
     /// @param ret double* Output vector (3 dimensional)
     void FOD(double rx, double ry, double rz, double r, double* ret);
+
+    /// Returns the second order derivative of the kernel function evaluated with
+    /// the given distance r and the individual components rx, ry and rz. The
+    /// distance r could be calculated within the kernel, but since it is
+    /// often necessarily calculated beforehand anyway, it is expected to be
+    /// given as a parameter.
+    ///
+    /// @param rx double The x component of the distance vector
+    /// @param ry double The y component of the distance vector
+    /// @param rz double The z component of the distance vector
+    /// @param r double The scalar distance value
+    /// @param ret double* Output vector (9 dimensional)
+    void SOD(double rx, double ry, double rz, double r, double* ret);
 
     /// Interpolates the density at position (rx,ry,rz) using the kernel
     /// the kernel function.

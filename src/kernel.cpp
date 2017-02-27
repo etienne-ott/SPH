@@ -43,6 +43,41 @@ void Kernel::FOD(double rx, double ry, double rz, double r, double* ret) {
     ret[2] /= _fac1;
 }
 
+void Kernel::SOD(double rx, double ry, double rz, double r, double* ret) {
+    double v = r / _h, ir = 1.0 / r;
+
+    if (v >= 0.0 && v < 1.0) {
+        ret[0] = -12 + 9 * r + 9 * rx * rx * ir;
+        ret[1] = 9 * ry * ir;
+        ret[2] = 9 * rz * ir;
+        ret[3] = 9 * rx * ir;
+        ret[4] = -12 + 9 * r + 9 * ry * ry * ir;
+        ret[5] = 9 * rz * ir;
+        ret[6] = 9 * rx * ir;
+        ret[7] = 9 * ry * ir;
+        ret[8] = -12 + 9 * r + 9 * rz * rz * ir;
+    } else if (v >= 1.0 && v < 2.0) {
+        ret[0] = -12 * ir + 12 - 15 * r + 12 * rx - 3 * rx * rx * ir;
+        ret[1] = -3 * rx * (4 * r / ry + ry / r);
+        ret[2] = -3 * rx * (4 * r / rz + rz / r);
+        ret[3] = -3 * ry * (4 * r / rx + rx / r);
+        ret[4] = -12 * ir + 12 - 15 * r + 12 * ry - 3 * ry * ry + ir;
+        ret[5] = -3 * ry * (4 * r / rz + rz / r);
+        ret[6] = -3 * rz * (4 * r / rx + rx / r);
+        ret[7] = -3 * rz * (4 * r / ry + ry / r);
+        ret[8] = -12 * ir + 12 - 15 * r + 12 * rz - 3 * ry * ry + ir;
+    } else {
+        for (int i = 0; i < 9; i++) {
+            ret[i] = 0.0;
+        }
+        return;
+    }
+
+    for (int i = 0; i < 9; i++) {
+        ret[i] /= _fac1;
+    }
+}
+
 double Kernel::InterpolateDensity(double rx, double ry, double rz, double* density, double* position) const {
     double sum = 0.0;
     double distance = 0.0;

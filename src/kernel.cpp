@@ -21,16 +21,16 @@ double Kernel::Function(double r) const {
 }
 
 void Kernel::FOD(double rx, double ry, double rz, double r, double* ret) {
-    double v = r / _h, ir = 1.0 / r;
+    double v = r / _h;
 
     if (v >= 0.0 && v < 1.0) {
-        ret[0] = -12.0 * rx * ir + 9.0 * rx * pow(ir, 2.0);
-        ret[1] = -12.0 * ry * ir + 9.0 * ry * pow(ir, 2.0);
-        ret[2] = -12.0 * rz * ir + 9.0 * rz * pow(ir, 2.0);
+        ret[0] = -12.0 * rx  + 9.0 * rx * r;
+        ret[1] = -12.0 * ry  + 9.0 * ry * r;
+        ret[2] = -12.0 * rz  + 9.0 * rz * r;
     } else if (v >= 1.0 && v < 2.0) {
-        ret[0] = -3.0 * pow(2.0 - r, 2.0) * rx * ir;
-        ret[1] = -3.0 * pow(2.0 - r, 2.0) * ry * ir;
-        ret[2] = -3.0 * pow(2.0 - r, 2.0) * rz * ir;
+        ret[0] = -3.0 * rx * (4 / r + r - 4);
+        ret[1] = -3.0 * ry * (4 / r + r - 4);
+        ret[2] = -3.0 * rz * (4 / r + r - 4);
     } else {
         ret[0] = 0.0;
         ret[1] = 0.0;

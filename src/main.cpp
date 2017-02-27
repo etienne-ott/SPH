@@ -30,7 +30,7 @@ int main() {
     Renderer r = Renderer();
     r.Init(R, R);
 
-    Kernel kernel = Kernel(h, N, 1/N);
+    Kernel kernel = Kernel(h, N, 1.0 / N);
 
     Compute compute = Compute(N, &kernel);
 

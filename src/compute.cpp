@@ -50,7 +50,8 @@ void Compute::Timestep() {
     double dt = 0.1;
     double mass = 1.0 / _N;
     double forceScale = 0.000003;
-    double dampening = 0.98;
+    double forceScale2 = 1000.0;
+    double dampening = 0.9;
 
     // Calculate density
     for (int i = 0; i < _N; i++) {
@@ -102,7 +103,7 @@ void Compute::Timestep() {
         }
 
         // gravity
-        _force[i * 3 + 2] -= _density[i] * mass * g;
+        _force[i * 3 + 2] -= _density[i] * mass * g * forceScale2;
     }
 
     // Do _velocity integration (explicit euler)
@@ -118,15 +119,25 @@ void Compute::Timestep() {
     // On collision we reflect the respective component and rescale the
     // velocity so the new absolute velocity is the old one multiplied
     // with a dampening factor.
+    // @todo We do the reflection with the old velocity, but the path after
+    // the reflection should be traversed with the dampened velocity
+    // @todo The dampening is uniform now, but should actually dampen the
+    // reflected component stronger, while still maintaining the correct
+    // direction
+    // @todo in fact, the reflection is too crude, since the kernel seemingly
+    // extends into the wall, but should be "squished" against it
     double newval = 0.0;
     for (int i = 0; i < _N; i++) {
+        bool damp = false;
 
         // Reflection of x component
         newval = _position[i * 3] + _velocity[i * 3] * dt;
         if (newval < 0.0) {
+            damp = true;
             _position[i * 3] = -newval;
             _velocity[i * 3] = -_velocity[i * 3];
         } else if (newval > 1.0) {
+            damp = true;
             _position[i * 3] = 2.0 - newval;
             _velocity[i * 3] = -_velocity[i * 3];
         } else {
@@ -136,9 +147,11 @@ void Compute::Timestep() {
         // Reflection of y component
         newval = _position[i * 3 + 1] + _velocity[i * 3 + 1] * dt;
         if (newval < 0.0) {
+            damp = true;
             _position[i * 3 + 1] = -newval;
             _velocity[i * 3 + 1] = -_velocity[i * 3 + 1];
         } else if (newval > 1.0) {
+            damp = true;
             _position[i * 3 + 1] = 2.0 - newval;
             _velocity[i * 3 + 1] = -_velocity[i * 3 + 1];
         } else {
@@ -148,6 +161,7 @@ void Compute::Timestep() {
         // Reflection of z component
         newval = _position[i * 3 + 2] + _velocity[i * 3 + 2] * dt;
         if (newval < 0.0) {
+            damp = true;
             _position[i * 3 + 2] = -newval;
             _velocity[i * 3 + 2] = -_velocity[i * 3 + 2];
         } else {
@@ -155,9 +169,11 @@ void Compute::Timestep() {
         }
 
         // Dampening
-        _velocity[i * 3] *= dampening;
-        _velocity[i * 3 + 1] *= dampening;
-        _velocity[i * 3 + 2] *= dampening;
+        if (damp) {
+            _velocity[i * 3] *= dampening;
+            _velocity[i * 3 + 1] *= dampening;
+            _velocity[i * 3 + 2] *= dampening;
+        }
     }
 }
 

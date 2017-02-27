@@ -1,4 +1,5 @@
 #include "SDL2/SDL.h"
+#include "kernel.hpp"
 
 #ifndef __RENDERER_HPP
 #define __RENDERER_HPP
@@ -39,6 +40,14 @@ public:
     /// @param position double* The particle positions
     /// @param N int The number of particles
     void DebugViewPositions(double* position, int N);
+
+    /// Renders the density of the fluid in a debug view. The density is
+    /// interpolated along the (x, 0.5, z) plane, where x and z go from 0 to 1.
+    ///
+    /// @param density double* The density of the particles
+    /// @param position double* The position of the particles
+    /// @param kernel Kernel* The kernel to use for interpolation
+    void DebugViewSurface(double* density, double* position, Kernel* kernel);
 
 private:
     /// @var _width int The width of the viewport.

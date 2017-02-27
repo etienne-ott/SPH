@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "kernel.hpp"
 #include "SDL2/SDL.h"
 #include <cmath>
 #include <limits>
@@ -66,6 +67,23 @@ void Renderer::DebugViewPositions(double* position, int N) {
         for (int k = iposx - yrange < 0 ? 0 : iposx - yrange; k < iposx + yrange && k < _width; k++) {
             for (int l = iposz - yrange < 0 ? 0 : iposz - yrange; l < iposz + yrange && l < _height; l++) {
                 this->SetPixelRGB(k, l, 0, 0, 0);
+            }
+        }
+    }
+
+    this->Render();
+}
+
+void Renderer::DebugViewSurface(double* density, double* position, Kernel* kernel) {
+    double dx = 1.0 / _width, dz = 1.0 / _height;
+
+    for (int i = 0; i < _width; i++) {
+        for (int j = 0; j < _height; j++) {
+            double d = kernel->InterpolateDensity(i * dx, 0.5, j * dz, density, position);
+            if (d > 0.5) {
+                this->SetPixelRGB(i, j, 0, 0, 0);
+            } else {
+                this->SetPixelRGB(i, j, 255, 255, 255);
             }
         }
     }

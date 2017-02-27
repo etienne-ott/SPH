@@ -24,7 +24,7 @@ int main() {
     int N = 50;
     int R = 400;
     double t = 0.0;
-    double tend = 50.0;
+    double tend = 500.0;
     double dt = 0.1;
 
     Renderer r = Renderer();

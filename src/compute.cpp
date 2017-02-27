@@ -50,12 +50,14 @@ void Compute::Timestep() {
     double k = 500.0;
     double g = 9.81;
     double dt = 0.1;
-    double mass = 1.0 / _N;
+    double rho0 = 1000.0;
+    double mass = rho0 / _N;
     double mu = 0.1;
-    double forceScale = 0.000003;
-    double forceScale2 = 1000.0;
-    double forceScale3 = 1000.0;
     double dampening = 0.9;
+    // @todo Force scaling should not be necessary
+    double FSPressure = 0.00003;
+    double FSGravity = 0.00001;
+    double FSViscosity = 0.01;
 
     // Calculate density
     for (int i = 0; i < _N; i++) {
@@ -75,7 +77,7 @@ void Compute::Timestep() {
 
     // Calculate pressure
     for (int i = 0; i < _N; i++) {
-        _pressure[i] = k * (pow(_density[i] / 1.0, 7.0) - 1);
+        _pressure[i] = k * (pow(_density[i] / rho0, 7.0) - 1);
     }
 
     // Calculate forces on particle i
@@ -101,13 +103,13 @@ void Compute::Timestep() {
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
             tmp = 0.5 * (_pressure[i] + _pressure[j]) * (mass / _density[j]);
 
-            _force[i * 3] -= tmp * _vec2[0];
-            _force[i * 3 + 1] -= tmp * _vec2[1];
-            _force[i * 3 + 2] -= tmp * _vec2[2];
+            _force[i * 3] -= FSPressure * tmp * _vec2[0];
+            _force[i * 3 + 1] -= FSPressure * tmp * _vec2[1];
+            _force[i * 3 + 2] -= FSPressure * tmp * _vec2[2];
 
             // viscosity
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
-            tmp = forceScale3 * mu * mass / _density[j];
+            tmp = FSViscosity * mu * mass / _density[j];
             _force[i * 3] -= tmp * (
                 (_velocity[j * 3] - _velocity[i * 3]) * _matr1[0]
                 + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[1]
@@ -128,14 +130,14 @@ void Compute::Timestep() {
         }
 
         // gravity
-        _force[i * 3 + 2] -= _density[i] * mass * g * forceScale2;
+        _force[i * 3 + 2] -= _density[i] * mass * g * FSGravity;
     }
 
     // Do _velocity integration (explicit euler)
     for (int i = 0; i < _N; i++) {
-        _velocity[i * 3] += forceScale * dt * _force[i * 3] / mass;
-        _velocity[i * 3 + 1] += forceScale * dt * _force[i * 3 + 1] / mass;
-        _velocity[i * 3 + 2] += forceScale * dt * _force[i * 3 + 2] / mass;
+        _velocity[i * 3] += dt * _force[i * 3] / mass;
+        _velocity[i * 3 + 1] += dt * _force[i * 3 + 1] / mass;
+        _velocity[i * 3 + 2] += dt * _force[i * 3 + 2] / mass;
     }
 
     // Do _position integration (explicit euler) with collision detection

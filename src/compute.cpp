@@ -8,6 +8,7 @@ Compute::Compute(int N, Kernel* kernel) {
 
     _vec1 = new double[3];
     _vec2 = new double[3];
+    _matr1 = new double[9];
     _position = new double[3 * N];
     _velocity = new double[3 * N];
     _force = new double[3 * N];
@@ -42,6 +43,7 @@ Compute::~Compute() {
     delete[] _pressure;
     delete[] _vec1;
     delete[] _vec2;
+    delete[] _matr1;
 }
 
 void Compute::Timestep() {
@@ -49,8 +51,10 @@ void Compute::Timestep() {
     double g = 9.81;
     double dt = 0.1;
     double mass = 1.0 / _N;
+    double mu = 0.1;
     double forceScale = 0.000003;
     double forceScale2 = 1000.0;
+    double forceScale3 = 1000.0;
     double dampening = 0.9;
 
     // Calculate density
@@ -100,6 +104,27 @@ void Compute::Timestep() {
             _force[i * 3] -= tmp * _vec2[0];
             _force[i * 3 + 1] -= tmp * _vec2[1];
             _force[i * 3 + 2] -= tmp * _vec2[2];
+
+            // viscosity
+            _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
+            tmp = forceScale3 * mu * mass / _density[j];
+            _force[i * 3] -= tmp * (
+                (_velocity[j * 3] - _velocity[i * 3]) * _matr1[0]
+                + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[1]
+                + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[2]
+                );
+
+            _force[i * 3 + 1] -= tmp * (
+                (_velocity[j * 3] - _velocity[i * 3]) * _matr1[3]
+                + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[4]
+                + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[5]
+                );
+
+            _force[i * 3 + 2] -= tmp * (
+                (_velocity[j * 3] - _velocity[i * 3]) * _matr1[6]
+                + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[7]
+                + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[8]
+                );
         }
 
         // gravity

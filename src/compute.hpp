@@ -39,11 +39,15 @@ private:
     /// @var _kernel Kernel* The kernel to use for calculations.
     Kernel* _kernel;
 
-    /// @var _vec1 double* A temporary vector used in calculations.
+    /// @var _vec1 double* A temporary 3D vector used in calculations.
     double* _vec1;
 
-    /// @var _vec1 double* A temporary vector used in calculations.
+    /// @var _vec1 double* A temporary 3D vector used in calculations.
     double* _vec2;
+
+    /// @var _matr1 double* A temporary 3x3 matrix used in calculations. The
+    ///     matrix is indexed row by row.
+    double* _matr1;
 
     /// @var _position double* The particle positions in x, y and z coordinates.
     double* _position;

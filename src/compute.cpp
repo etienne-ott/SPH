@@ -50,6 +50,7 @@ void Compute::Timestep() {
     double dt = 0.1;
     double mass = 1.0 / _N;
     double forceScale = 0.000003;
+    double dampening = 0.98;
 
     // Calculate density
     for (int i = 0; i < _N; i++) {
@@ -111,11 +112,52 @@ void Compute::Timestep() {
         _velocity[i * 3 + 2] += forceScale * dt * _force[i * 3 + 2] / mass;
     }
 
-    // Do _position integration (explicit euler)
+    // Do _position integration (explicit euler) with collision detection
+    // against the standard rectangle spanned by (0,0,0)x(1,1,1), that is
+    // open on the upper side (z > 1).
+    // On collision we reflect the respective component and rescale the
+    // velocity so the new absolute velocity is the old one multiplied
+    // with a dampening factor.
+    double newval = 0.0;
     for (int i = 0; i < _N; i++) {
-        _position[i * 3] += _velocity[i * 3] * dt;
-        _position[i * 3 + 1] += _velocity[i * 3 + 1] * dt;
-        _position[i * 3 + 2] += _velocity[i * 3 + 2] * dt;
+
+        // Reflection of x component
+        newval = _position[i * 3] + _velocity[i * 3] * dt;
+        if (newval < 0.0) {
+            _position[i * 3] = -newval;
+            _velocity[i * 3] = -_velocity[i * 3];
+        } else if (newval > 1.0) {
+            _position[i * 3] = 2.0 - newval;
+            _velocity[i * 3] = -_velocity[i * 3];
+        } else {
+            _position[i * 3] = newval;
+        }
+
+        // Reflection of y component
+        newval = _position[i * 3 + 1] + _velocity[i * 3 + 1] * dt;
+        if (newval < 0.0) {
+            _position[i * 3 + 1] = -newval;
+            _velocity[i * 3 + 1] = -_velocity[i * 3 + 1];
+        } else if (newval > 1.0) {
+            _position[i * 3 + 1] = 2.0 - newval;
+            _velocity[i * 3 + 1] = -_velocity[i * 3 + 1];
+        } else {
+            _position[i * 3 + 1] = newval;
+        }
+
+        // Reflection of z component
+        newval = _position[i * 3 + 2] + _velocity[i * 3 + 2] * dt;
+        if (newval < 0.0) {
+            _position[i * 3 + 2] = -newval;
+            _velocity[i * 3 + 2] = -_velocity[i * 3 + 2];
+        } else {
+            _position[i * 3 + 2] = newval;
+        }
+
+        // Dampening
+        _velocity[i * 3] *= dampening;
+        _velocity[i * 3 + 1] *= dampening;
+        _velocity[i * 3 + 2] *= dampening;
     }
 }
 

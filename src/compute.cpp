@@ -18,9 +18,18 @@ Compute::Compute(int N, Kernel* kernel) {
     RandomPool pool = RandomPool();
 
     for (int i = 0; i < N; i++) {
-        _position[i * 3] = pool.NextDouble();
-        _position[i * 3 + 1] = pool.NextDouble();
-        _position[i * 3 + 2] = pool.NextDouble();
+        // We keep rerolling the position until we are within a radius of 0.4
+        // of the position (0.5,0.5,1.0)
+        // @todo Do this more cleverly with spherical coordinates
+        double distance = 1e3;
+        while (distance > 0.4) {
+            _position[i * 3] = pool.NextDouble();
+            _position[i * 3 + 1] = pool.NextDouble();
+            _position[i * 3 + 2] = pool.NextDouble();
+            distance = sqrt((0.5 - _position[i * 3]) * (0.5 - _position[i * 3])
+                + (0.5 - _position[i * 3 + 1]) * (0.5 - _position[i * 3 + 1])
+                + (1.0 - _position[i * 3 + 2]) * (1.0 - _position[i * 3 + 2]));
+        }
 
         _velocity[i * 3] = pool.NextDouble(0.0, 0.1);
         _velocity[i * 3 + 1] = pool.NextDouble(0.0, 0.1);

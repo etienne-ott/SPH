@@ -2,6 +2,7 @@
 #include "kernel.hpp"
 #include "vtk.hpp"
 #include "compute.hpp"
+#include "parameter.hpp"
 
 #define WRITE_VTK_OUTPUT false
 
@@ -20,38 +21,35 @@ bool checkQuitSLDEvent(SDL_Event* event) {
 }
 
 int main() {
-    double h = 0.3;
-    int N = 50;
-    int R = 400;
-    double t = 0.0;
-    double tend = 500.0;
-    double dt = 0.1;
+    Parameter param = Parameter();
+    param.Load("simulation.param");
 
     Renderer r = Renderer();
-    r.Init(R, R);
+    r.Init(param.R, param.R);
 
-    Kernel kernel = Kernel(h, N, 1.0 / N);
+    Kernel kernel = Kernel(param.h, param.N, param.mass);
 
-    Compute compute = Compute(N, &kernel);
+    Compute compute = Compute(param.N, &kernel);
 
     VTK vtk = VTK("VTK/", &kernel, 20);
 
     bool running = true;
     SDL_Event event;
+    double t = 0.0;
 
-    r.DebugViewPositions(compute.GetPosition(), N);
+    r.DebugViewPositions(compute.GetPosition(), param.N);
 
-    while (t < tend && running) {
+    while (t < param.tend && running) {
         compute.Timestep();
 
         if (WRITE_VTK_OUTPUT) {
             vtk.WriteDensity(compute.GetDensity(), compute.GetPosition());
         }
 
-        r.DebugViewPositions(compute.GetPosition(), N);
+        r.DebugViewPositions(compute.GetPosition(), param.N);
         running = !checkQuitSLDEvent(&event);
 
-        t += dt;
+        t += param.dt;
     }
 
     while (running) {

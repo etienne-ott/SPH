@@ -22,7 +22,7 @@ bool checkQuitSLDEvent(SDL_Event* event) {
 
 int main() {
     Parameter param = Parameter();
-    param.Load("simulation.param");
+    param.Load("sample.param");
 
     Renderer r = Renderer();
     r.Init(param.R, param.R);

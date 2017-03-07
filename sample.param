@@ -1,0 +1,13 @@
+N = 100
+h = 0.05
+R = 400
+tend = 1.0
+k = 1000.0
+g = 9.81
+dt = 0.0005
+rho0 = 1000.0
+mu = 0.1
+dampening = 0.8
+fspressure = 1.0
+fsgravity = 1.0
+fsviscosity = 1.0

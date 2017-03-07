@@ -29,7 +29,7 @@ int main() {
 
     Kernel kernel = Kernel(param.h, param.N, param.mass);
 
-    Compute compute = Compute(param.N, &kernel);
+    Compute compute = Compute(&param, &kernel);
 
     VTK vtk = VTK("VTK/", &kernel, 20);
 

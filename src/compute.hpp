@@ -1,4 +1,5 @@
 #include "kernel.hpp"
+#include "parameter.hpp"
 
 #ifndef __COMPUTE_HPP
 #define __COMPUTE_HPP
@@ -7,9 +8,9 @@ class Compute {
 public:
     /// Constructor.
     ///
-    /// @param N int The number of parameters
+    /// @param param Parameter* The parameter object
     /// @param kernel Kernel* The kernel used for calculations
-    Compute(int N, Kernel* kernel);
+    Compute(Parameter* param, Kernel* kernel);
 
     /// Destructor. Destroys the data fields properly, that were created
     /// during initialization.
@@ -37,8 +38,9 @@ public:
     double* GetDensity();
 
 private:
-    /// @var _N int The number of particles.
-    int _N;
+    /// @var _param Parameter* The parameter object containing the values
+    /// of all necessary parameters.
+    Parameter* _param;
 
     /// @var _kernel Kernel* The kernel to use for calculations.
     Kernel* _kernel;

@@ -15,6 +15,10 @@ public:
     /// during initialization.
     ~Compute();
 
+    /// Calculates the current densities of the particles from their
+    /// position and the kernel.
+    void CalculateDensity();
+
     /// Calculates one timestep of the fluid simulations, which includes
     /// calculating the forces on each particles, enforcing boundary
     /// conditions, then integrating the particle velocities and positions

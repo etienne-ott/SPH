@@ -55,20 +55,10 @@ Compute::~Compute() {
     delete[] _matr1;
 }
 
-void Compute::Timestep() {
-    double k = 500.0;
-    double g = 9.81;
-    double dt = 0.1;
+void Compute::CalculateDensity() {
     double rho0 = 1000.0;
     double mass = rho0 / _N;
-    double mu = 0.1;
-    double dampening = 0.9;
-    // @todo Force scaling should not be necessary
-    double FSPressure = 0.00003;
-    double FSGravity = 0.00001;
-    double FSViscosity = 0.01;
 
-    // Calculate density
     for (int i = 0; i < _N; i++) {
         double sum = 0.0;
         double distance = 0.0;
@@ -83,6 +73,22 @@ void Compute::Timestep() {
         }
         _density[i] = sum;
     }
+}
+
+void Compute::Timestep() {
+    double k = 500.0;
+    double g = 9.81;
+    double dt = 0.1;
+    double rho0 = 1000.0;
+    double mass = rho0 / _N;
+    double mu = 0.1;
+    double dampening = 0.9;
+    // @todo Force scaling should not be necessary
+    double FSPressure = 0.00003;
+    double FSGravity = 0.00001;
+    double FSViscosity = 0.01;
+
+    this->CalculateDensity();
 
     // Calculate pressure
     for (int i = 0; i < _N; i++) {

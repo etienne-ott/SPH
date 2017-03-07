@@ -25,6 +25,16 @@ public:
 	/// @param filename char* The name of the file to load
 	void Load(const char* filename);
 
+	/// Normalizes the mass value with the given density, so that the mass of a
+	/// single particle corresponds to the desired overall mass of the volume of
+	/// the fluid. The calculated mass is also set as the new mass parameter in
+	/// the parameter object.
+	///
+	/// @param density double* The density of the particles
+	/// @param N int The number of particles
+	/// @return double The calculated normalized mass value
+	double NormalizeMass(double* density, int N);
+
 	int N;
 	double h;
 	int R;

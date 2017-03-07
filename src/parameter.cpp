@@ -15,7 +15,7 @@ Parameter::Parameter() {
     g = 9.81;
     dt = 0.1;
     rho0 = 1000.0;
-    mass = rho0 / N;
+    mass = 1.0;
     mu = 0.1;
     dampening = 0.9;
     // @todo Force scaling should not be necessary
@@ -66,4 +66,14 @@ void Parameter::Load(const char *filename) {
     }
 
     fclose(handle);
+}
+
+double Parameter::NormalizeMass(double* density, int N) {
+    double sumRho = 0.0, sumRhoSq = 0.0;
+    for (int i = 0; i < N; i++) {
+        sumRho += density[i];
+        sumRhoSq += density[i] * density[i];
+    }
+    mass = rho0 * sumRho / sumRhoSq;
+    return mass;
 }

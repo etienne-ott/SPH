@@ -114,19 +114,19 @@ void Compute::Timestep() {
             // viscosity
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
             tmp = _param->FSViscosity * _param->mu * _param->mass / _density[j];
-            _force[i * 3] -= tmp * (
+            _force[i * 3] += tmp * (
                 (_velocity[j * 3] - _velocity[i * 3]) * _matr1[0]
                 + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[1]
                 + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[2]
                 );
 
-            _force[i * 3 + 1] -= tmp * (
+            _force[i * 3 + 1] += tmp * (
                 (_velocity[j * 3] - _velocity[i * 3]) * _matr1[3]
                 + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[4]
                 + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[5]
                 );
 
-            _force[i * 3 + 2] -= tmp * (
+            _force[i * 3 + 2] += tmp * (
                 (_velocity[j * 3] - _velocity[i * 3]) * _matr1[6]
                 + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[7]
                 + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[8]
@@ -134,7 +134,7 @@ void Compute::Timestep() {
         }
 
         // gravity
-        _force[i * 3 + 2] -= _density[i] * _param->mass * _param->g * _param->FSGravity;
+        _force[i * 3 + 2] += _density[i] * _param->mass * _param->g * _param->FSGravity;
     }
 
     // Do _velocity integration (explicit euler)

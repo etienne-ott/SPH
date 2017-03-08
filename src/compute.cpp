@@ -139,9 +139,9 @@ void Compute::Timestep() {
 
     // Do _velocity integration (explicit euler)
     for (int i = 0; i < _param->N; i++) {
-        _velocity[i * 3] += _param->dt * _force[i * 3] / _param->mass;
-        _velocity[i * 3 + 1] += _param->dt * _force[i * 3 + 1] / _param->mass;
-        _velocity[i * 3 + 2] += _param->dt * _force[i * 3 + 2] / _param->mass;
+        _velocity[i * 3] += _param->dt * _force[i * 3] / _density[i];
+        _velocity[i * 3 + 1] += _param->dt * _force[i * 3 + 1] / _density[i];
+        _velocity[i * 3 + 2] += _param->dt * _force[i * 3 + 2] / _density[i];
     }
 
     // Do _position integration (explicit euler) with collision detection

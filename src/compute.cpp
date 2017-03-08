@@ -65,9 +65,9 @@ void Compute::CalculateDensity() {
         double distance = 0.0;
         for (int j = 0; j < _param->N; j++) {
             distance = pow(
-                (_position[j * 3] - _position[i * 3]) * (_position[j * 3] - _position[i * 3])
-                    + (_position[j * 3 + 1] - _position[i * 3 + 1]) * (_position[j * 3 + 1] - _position[i * 3 + 1])
-                    + (_position[j * 3 + 2] - _position[i * 3 + 2]) * (_position[j * 3 + 2] - _position[i * 3 + 2]),
+                (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
+                    + (_position[i * 3 + 1] - _position[j * 3 + 1]) * (_position[i * 3 + 1] - _position[j * 3 + 1])
+                    + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
                 0.5
             );
             sum += _param->mass * _kernel->Function(distance);

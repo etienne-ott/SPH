@@ -84,7 +84,10 @@ double Compute::CalculateDensity() {
 }
 
 void Compute::Timestep() {
-    this->CalculateDensity();
+    // h should be set to avg^(-1/d), where avg is the average density of the
+    // fluid and d is the dimension
+    double h = pow(this->CalculateDensity(), -1.0 / 3.0);
+    _kernel->SetH(h);
 
     // Calculate pressure
     for (int i = 0; i < _param->N; i++) {

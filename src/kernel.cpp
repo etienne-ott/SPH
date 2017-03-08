@@ -94,3 +94,7 @@ double Kernel::InterpolateDensity(double rx, double ry, double rz, double* densi
 
     return sum;
 }
+
+void Kernel::SetH(double h) {
+    _h = h;
+}

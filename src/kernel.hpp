@@ -53,6 +53,11 @@ public:
     /// @return double The interpolated density value at position (rx,ry,rz)
     double InterpolateDensity(double rx, double ry, double rz, double* density, double* position) const;
 
+    /// Sets the smoothing length uses by the kernel to the given value.
+    ///
+    /// @param h double The new smoothing length.
+    void SetH(double h);
+
 private:
     /// @var _h double The range factor used by the kernel
     double _h;

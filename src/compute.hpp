@@ -17,8 +17,11 @@ public:
     ~Compute();
 
     /// Calculates the current densities of the particles from their
-    /// position and the kernel.
-    void CalculateDensity();
+    /// position and the kernel. Also returns the average density of
+    /// the fluid.
+    ///
+    /// @return double The average density of the fluid
+    double CalculateDensity();
 
     /// Calculates one timestep of the fluid simulations, which includes
     /// calculating the forces on each particles, enforcing boundary

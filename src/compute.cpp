@@ -59,10 +59,13 @@ Compute::~Compute() {
     delete[] _matr1;
 }
 
-void Compute::CalculateDensity() {
+double Compute::CalculateDensity() {
+    double avgsum = 0.0;
+
     for (int i = 0; i < _param->N; i++) {
         double sum = 0.0;
         double distance = 0.0;
+
         for (int j = 0; j < _param->N; j++) {
             distance = pow(
                 (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
@@ -72,8 +75,12 @@ void Compute::CalculateDensity() {
             );
             sum += _param->mass * _kernel->Function(distance);
         }
+
         _density[i] = sum;
+        avgsum += sum;
     }
+
+    return avgsum / _param->N;
 }
 
 void Compute::Timestep() {

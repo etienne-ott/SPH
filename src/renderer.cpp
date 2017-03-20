@@ -1,8 +1,9 @@
 #include "renderer.hpp"
 #include "kernel.hpp"
 #include "SDL2/SDL.h"
-#include <cmath>
-#include <limits>
+#include <algorithm>
+
+using namespace std;
 
 Renderer::Renderer() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -63,7 +64,7 @@ void Renderer::DebugViewPositions(double* position, int N) {
     for (int i = 0; i < N; i++) {
         int iposx = (int)(_width * position[i * 3]),
             iposz = _height - (int)(_height * position[i * 3 + 2]),
-            yrange = (int)(10 * position[i * 3 + 1]);
+            yrange = max(0, min(10, (int)(10 * (1.0 - position[i * 3 + 1]))));
         for (int k = iposx - yrange < 0 ? 0 : iposx - yrange; k < iposx + yrange && k < _width; k++) {
             for (int l = iposz - yrange < 0 ? 0 : iposz - yrange; l < iposz + yrange && l < _height; l++) {
                 this->SetPixelRGB(k, l, 0, 0, 0);

@@ -45,7 +45,7 @@ int main() {
     SDL_Event event;
     double t = 0.0;
 
-    r.DebugViewPositions(compute.GetPosition(), param.N);
+    r.DebugViewPositions(compute.GetPosition(), param.N, t);
 
     while (t < param.tend && running) {
         compute.Timestep();
@@ -54,7 +54,7 @@ int main() {
             vtk.WriteDensity(compute.GetDensity(), compute.GetPosition());
         }
 
-        r.DebugViewPositions(compute.GetPosition(), param.N);
+        r.DebugViewPositions(compute.GetPosition(), param.N, t);
         running = !checkQuitSLDEvent(&event);
 
         t += param.dt;

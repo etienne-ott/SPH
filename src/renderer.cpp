@@ -6,10 +6,15 @@
 using namespace std;
 
 Renderer::Renderer() {
+    _title = new char[500];
+    sprintf(_title, "Smoothed particle hydrodynamics");
+
     SDL_Init(SDL_INIT_VIDEO);
 }
 
 Renderer::~Renderer() {
+    delete[] _title;
+
     SDL_DestroyWindow(_window);
     SDL_Quit();
 }
@@ -27,7 +32,7 @@ void Renderer::SetPixelRGB(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
 void Renderer::Init(const int &width, const int &height) {
     _width = width;
     _height = height;
-    _window = SDL_CreateWindow("Smoothed particle hydrodynamics", SDL_WINDOWPOS_UNDEFINED,
+    _window = SDL_CreateWindow(_title, SDL_WINDOWPOS_UNDEFINED,
     SDL_WINDOWPOS_UNDEFINED, _width, _height, 0);
     _screen = SDL_GetWindowSurface(_window);
 
@@ -49,12 +54,13 @@ int Renderer::Render() {
         SDL_UnlockSurface(_screen);
     }
 
+    SDL_SetWindowTitle(_window, _title);
     SDL_UpdateWindowSurface(_window);
 
     return 1;
 }
 
-void Renderer::DebugViewPositions(double* position, int N) {
+void Renderer::DebugViewPositions(double* position, int N, double time) {
     for (int i = 0; i < _width; i++) {
         for (int j = 0; j < _height; j++) {
             this->SetPixelRGB(i, j, 255, 255, 255);
@@ -71,6 +77,8 @@ void Renderer::DebugViewPositions(double* position, int N) {
             }
         }
     }
+
+    sprintf(_title, "Smoothed particle hydrodynamics (t=%f)", time);
 
     this->Render();
 }

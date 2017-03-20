@@ -39,7 +39,8 @@ public:
     ///
     /// @param position double* The particle positions
     /// @param N int The number of particles
-    void DebugViewPositions(double* position, int N);
+    /// @param time double The current simulation time
+    void DebugViewPositions(double* position, int N, double time);
 
     /// Renders the density of the fluid in a debug view. The density is
     /// interpolated along the (x, 0.5, z) plane, where x and z go from 0 to 1.
@@ -55,6 +56,9 @@ private:
 
     /// @var _height int The height of the viewport.
     int _height;
+
+    /// @var _title char* The title of the window.
+    char* _title;
 
     /// @var _window SDL_Window* The SDL window.
     SDL_Window *_window;

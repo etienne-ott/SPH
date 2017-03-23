@@ -1,10 +1,12 @@
 #include "renderer.hpp"
 #include "kernel.hpp"
 #include "vtk.hpp"
+#include "ascii_output.hpp"
 #include "compute.hpp"
 #include "parameter.hpp"
 
 #define WRITE_VTK_OUTPUT false
+#define WRITE_ASCII_OUTPUT false
 
 /// Checks if there has been a SDL_QUIT event since the last time SLD events
 /// were checked.
@@ -40,6 +42,7 @@ int main() {
     kernel.SetH(h);
 
     VTK vtk = VTK("VTK/", &kernel, 20);
+    ASCIIOutput ascii = ASCIIOutput("output/ascii/");
 
     bool running = true;
     SDL_Event event;
@@ -52,6 +55,10 @@ int main() {
 
         if (WRITE_VTK_OUTPUT) {
             vtk.WriteDensity(compute.GetDensity(), compute.GetPosition());
+        }
+
+        if (WRITE_ASCII_OUTPUT) {
+            ascii.WriteParticleStatus(compute.GetDensity(), compute.GetPosition(), &param);
         }
 
         r.DebugViewPositions(compute.GetPosition(), param.N, t);

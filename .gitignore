@@ -3,5 +3,6 @@ build/
 .sconsign.dblite
 *.o
 
-# output folder
+# output folder (specific files will be added to a commit manually)
+output
 VTK

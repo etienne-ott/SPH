@@ -41,7 +41,7 @@ int main() {
     double h = pow(avg, -1.0 / 3.0);
     kernel.SetH(h);
 
-    VTK vtk = VTK("VTK/", &kernel, 20);
+    VTK vtk = VTK("output/vtk/", &kernel, 20);
     ASCIIOutput ascii = ASCIIOutput("output/ascii/");
 
     bool running = true;

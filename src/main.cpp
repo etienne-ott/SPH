@@ -39,6 +39,7 @@ int main() {
     Compute compute = Compute(&param, &kernel);
     double avg = compute.CalculateDensity();
     double h = pow(avg, -1.0 / 3.0);
+    param.h = h;
     kernel.SetH(h);
 
     VTK vtk = VTK("output/vtk/", &kernel, 20);

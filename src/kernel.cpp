@@ -97,4 +97,5 @@ double Kernel::InterpolateDensity(double rx, double ry, double rz, double* densi
 
 void Kernel::SetH(double h) {
     _h = h;
+    _fac1 = 4.0 * h * h * h * _N;
 }

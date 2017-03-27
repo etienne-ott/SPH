@@ -1,5 +1,5 @@
 N = 400
-h = 0.055
+h = 0.07617
 R = 400
 tend = 60.0
 k = 1000.0
@@ -7,6 +7,7 @@ g = -9.81
 dt = 0.005
 rho0 = 1000.0
 mu = 0.1
+kappa = 1.0
 dampening = 0.8
 fspressure = 15.0
 fsgravity = 1.0

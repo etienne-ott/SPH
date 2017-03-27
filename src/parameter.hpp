@@ -45,6 +45,7 @@ public:
 	double rho0;
 	double mass;
 	double mu;
+	double kappa;
 	double dampening;
 	double FSPressure;
 	double FSGravity;

@@ -61,11 +61,11 @@ void Kernel::SOD(double rx, double ry, double rz, double r, double* ret) {
         ret[1] = -3 * rx * (4 * r / ry + ry / r);
         ret[2] = -3 * rx * (4 * r / rz + rz / r);
         ret[3] = -3 * ry * (4 * r / rx + rx / r);
-        ret[4] = -12 * ir + 12 - 15 * r + 12 * ry - 3 * ry * ry + ir;
+        ret[4] = -12 * ir + 12 - 15 * r + 12 * ry - 3 * ry * ry * ir;
         ret[5] = -3 * ry * (4 * r / rz + rz / r);
         ret[6] = -3 * rz * (4 * r / rx + rx / r);
         ret[7] = -3 * rz * (4 * r / ry + ry / r);
-        ret[8] = -12 * ir + 12 - 15 * r + 12 * rz - 3 * ry * ry + ir;
+        ret[8] = -12 * ir + 12 - 15 * r + 12 * rz - 3 * ry * ry * ir;
     } else {
         for (int i = 0; i < 9; i++) {
             ret[i] = 0.0;

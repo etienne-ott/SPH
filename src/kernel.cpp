@@ -57,15 +57,15 @@ void Kernel::SOD(double rx, double ry, double rz, double r, double* ret) {
         ret[7] = 9 * ry * ir;
         ret[8] = -12 + 9 * r + 9 * rz * rz * ir;
     } else if (v >= 1.0 && v < 2.0) {
-        ret[0] = -12 * ir + 12 - 15 * r + 12 * rx - 3 * rx * rx * ir;
-        ret[1] = -3 * rx * (4 * r / ry + ry / r);
-        ret[2] = -3 * rx * (4 * r / rz + rz / r);
-        ret[3] = -3 * ry * (4 * r / rx + rx / r);
-        ret[4] = -12 * ir + 12 - 15 * r + 12 * ry - 3 * ry * ry * ir;
-        ret[5] = -3 * ry * (4 * r / rz + rz / r);
-        ret[6] = -3 * rz * (4 * r / rx + rx / r);
-        ret[7] = -3 * rz * (4 * r / ry + ry / r);
-        ret[8] = -12 * ir + 12 - 15 * r + 12 * rz - 3 * ry * ry * ir;
+        ret[0] = -12 * ir + 12 - 15 * r - 3 * rx * rx * ir;
+        ret[1] = -3 * rx * (4 * r / ry + ry * ir);
+        ret[2] = -3 * rx * (4 * r / rz + rz * ir);
+        ret[3] = -3 * ry * (4 * r / rx + rx * ir);
+        ret[4] = -12 * ir + 12 - 15 * r - 3 * ry * ry * ir;
+        ret[5] = -3 * ry * (4 * r / rz + rz * ir);
+        ret[6] = -3 * rz * (4 * r / rx + rx * ir);
+        ret[7] = -3 * rz * (4 * r / ry + ry * ir);
+        ret[8] = -12 * ir + 12 - 15 * r - 3 * ry * ry * ir;
     } else {
         for (int i = 0; i < 9; i++) {
             ret[i] = 0.0;

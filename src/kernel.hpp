@@ -34,6 +34,11 @@ public:
     /// distance r could be calculated within the kernel, but since it is
     /// often necessarily calculated beforehand anyway, it is expected to be
     /// given as a parameter.
+    /// IMPORTANT: The SOD is not defined if either rx, ry, rz or r is exactly
+    /// zero, since then divisions by zero occur. In practise this often cancels
+    /// out with a multiplication by zero, but be aware that 0 * (1 / 0) is NOT
+    /// zero when dealing with floating point arithmetic. Therefore calls to
+    /// this method should not be done with arguments that have zero values.
     ///
     /// @param rx double The x component of the distance vector
     /// @param ry double The y component of the distance vector

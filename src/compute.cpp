@@ -123,6 +123,7 @@ void Compute::CalculatePressure() {
 void Compute::CalculateForces() {
     double distance = 0.0;
     double tmp = 0.0;
+    double dvx = 0.0, dvy = 0.0, dvz = 0.0;
 
     for (int i = 0; i < _param->N; i++) {
         _force[i * 3] = 0.0;
@@ -156,23 +157,27 @@ void Compute::CalculateForces() {
             // Viscosity force
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
             tmp = _param->FSViscosity * _param->mu * _param->mass / _density[j];
+            dvx = _velocity[j * 3] - _velocity[i * 3];
+            dvy = _velocity[j * 3 + 1] - _velocity[i * 3 + 1];
+            dvz = _velocity[j * 3 + 2] - _velocity[i * 3 + 2];
+
             _force[i * 3] += tmp * (
-                (_velocity[j * 3] - _velocity[i * 3]) * _matr1[0]
-                + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[1]
-                + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[2]
-                );
+                (_vec1[0] < 0.00000001 && _vec1[0] > -0.00000001 ? 0.0 : dvx * _matr1[0])
+                + (_vec1[1] < 0.00000001 && _vec1[1] > -0.00000001 ? 0.0 : dvy * _matr1[1])
+                + (_vec1[2] < 0.00000001 && _vec1[2] > -0.00000001 ? 0.0 : dvz * _matr1[2])
+            );
 
             _force[i * 3 + 1] += tmp * (
-                (_velocity[j * 3] - _velocity[i * 3]) * _matr1[3]
-                + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[4]
-                + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[5]
-                );
+                (_vec1[0] < 0.00000001 && _vec1[0] > -0.00000001 ? 0.0 : dvx * _matr1[3])
+                + (_vec1[1] < 0.00000001 && _vec1[1] > -0.00000001 ? 0.0 : dvy * _matr1[4])
+                + (_vec1[2] < 0.00000001 && _vec1[2] > -0.00000001 ? 0.0 : dvz * _matr1[5])
+            );
 
             _force[i * 3 + 2] += tmp * (
-                (_velocity[j * 3] - _velocity[i * 3]) * _matr1[6]
-                + (_velocity[j * 3 + 1] - _velocity[i * 3 + 1]) * _matr1[7]
-                + (_velocity[j * 3 + 2] - _velocity[i * 3 + 2]) * _matr1[8]
-                );
+                (_vec1[0] < 0.00000001 && _vec1[0] > -0.00000001 ? 0.0 : dvx * _matr1[6])
+                + (_vec1[1] < 0.00000001 && _vec1[1] > -0.00000001 ? 0.0 : dvy * _matr1[7])
+                + (_vec1[2] < 0.00000001 && _vec1[2] > -0.00000001 ? 0.0 : dvz * _matr1[8])
+            );
         }
     }
 }

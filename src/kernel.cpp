@@ -5,7 +5,7 @@ Kernel::Kernel(double h, int N, double mass) {
     _h = h;
     _N = N;
     _mass = mass;
-    _fac1 = 4.0 * h * h * h * N;
+    _fac1 = 1.0 / (4.0 * h * h * h * N);
 }
 
 double Kernel::Function(double r) const {
@@ -17,7 +17,7 @@ double Kernel::Function(double r) const {
     } else {
         return 0.0;
     }
-    return v / _fac1;
+    return v * _fac1;
 }
 
 void Kernel::FOD(double rx, double ry, double rz, double r, double* ret) {
@@ -38,9 +38,9 @@ void Kernel::FOD(double rx, double ry, double rz, double r, double* ret) {
         return;
     }
 
-    ret[0] /= _fac1;
-    ret[1] /= _fac1;
-    ret[2] /= _fac1;
+    ret[0] *= _fac1;
+    ret[1] *= _fac1;
+    ret[2] *= _fac1;
 }
 
 void Kernel::SOD(double rx, double ry, double rz, double r, double* ret) {
@@ -74,7 +74,7 @@ void Kernel::SOD(double rx, double ry, double rz, double r, double* ret) {
     }
 
     for (int i = 0; i < 9; i++) {
-        ret[i] /= _fac1;
+        ret[i] *= _fac1;
     }
 }
 
@@ -97,5 +97,5 @@ double Kernel::InterpolateDensity(double rx, double ry, double rz, double* densi
 
 void Kernel::SetH(double h) {
     _h = h;
-    _fac1 = 4.0 * h * h * h * _N;
+    _fac1 = 1.0 / (4.0 * h * h * h * _N);
 }

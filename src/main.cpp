@@ -29,18 +29,8 @@ int main() {
     Renderer r = Renderer();
     r.Init(param.R, param.R);
 
-    // We need to calculate the smoothing length, which should be chosen
-    // depending on the average density, but we need the kernel for
-    // calculating the density, so we calculate the initial density with
-    // an arbitrary smoothing length for initial values, then choose the
-    // faster h.
-    // @todo Figure out why the initial value of h matters so much
     Kernel kernel = Kernel(param.h, param.N, param.mass);
     Compute compute = Compute(&param, &kernel);
-    double avg = compute.CalculateDensity();
-    double h = pow(avg, -1.0 / 3.0);
-    param.h = h;
-    kernel.SetH(h);
 
     VTK vtk = VTK("output/vtk/", &kernel, 20);
     ASCIIOutput ascii = ASCIIOutput("output/ascii/");

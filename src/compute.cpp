@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdio>
 #include "compute.hpp"
 #include "parameter.hpp"
 
@@ -7,6 +8,7 @@ Compute::Compute(Parameter* param, Kernel* kernel) {
     _kernel = kernel;
 
     _isFirstStep = true;
+    _initPotNrg = 0.0;
 
     _vec1 = new double[3];
     _vec2 = new double[3];
@@ -57,8 +59,16 @@ Compute::Compute(Parameter* param, Kernel* kernel) {
         _pressure[i] = 0.0;
     }
 
-    this->CalculateDensity();
+    double avg = this->CalculateDensity();
     _param->NormalizeMass(_density, _param->N);
+    printf("After init:\nAverage density: %f\nNormalized mass: %f\n\n", avg, _param->mass);
+
+    // @todo Make height for potential energy dependant of domain
+    // @todo Somehow approximate initial potential energy of pressure
+    // and viscosity, depends on starting conditions
+    for (int i = 0; i < _param->N; i++) {
+        _initPotNrg += _param->g * _param->mass * _position[i * 3 + 2];
+    }
 }
 
 Compute::~Compute() {
@@ -104,6 +114,7 @@ void Compute::Timestep() {
     double h = pow(this->CalculateDensity(), -1.0 / 3.0);
     _param->h = h;
     _kernel->SetH(h);
+    printf("New h: %f; ", h);
 
 
     this->CalculatePressure();
@@ -112,6 +123,7 @@ void Compute::Timestep() {
     this->PositionIntegration();
 
     _isFirstStep = false;
+    printf("\n");
 }
 
 void Compute::CalculatePressure() {
@@ -124,14 +136,19 @@ void Compute::CalculateForces() {
     double distance = 0.0;
     double tmp = 0.0;
     double dvx = 0.0, dvy = 0.0, dvz = 0.0;
+    double kinNrg = 0.0;
 
     for (int i = 0; i < _param->N; i++) {
         _force[i * 3] = 0.0;
         _force[i * 3 + 1] = 0.0;
         _force[i * 3 + 2] = 0.0;
 
+        kinNrg += 0.5 * _param->mass * (_velocity[i * 3] * _velocity[i * 3]
+            + _velocity[i * 3 + 1] * _velocity[i * 3 + 1]
+            + _velocity[i * 3 + 2] * _velocity[i * 3 + 2]);
+
         // 1-body forces, currently only gravity
-        _force[i * 3 + 2] += _density[i] * _param->mass * _param->g * _param->FSGravity;
+        _force[i * 3 + 2] += _density[i] * _param->FSGravity * _param->mass * _param->g;
 
         // 2-body forces
         // @todo Use symmetry to reduce number of calculations by a factor of 2
@@ -148,11 +165,11 @@ void Compute::CalculateForces() {
 
             // Pressure force
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
-            tmp = 0.5 * (_pressure[i] + _pressure[j]) * (_param->mass / _density[j]);
+            tmp = 0.5 * _param->FSPressure * (_pressure[i] + _pressure[j]) * (_param->mass / _density[j]);
 
-            _force[i * 3] -= _param->FSPressure * tmp * _vec2[0];
-            _force[i * 3 + 1] -= _param->FSPressure * tmp * _vec2[1];
-            _force[i * 3 + 2] -= _param->FSPressure * tmp * _vec2[2];
+            _force[i * 3] -= tmp * _vec2[0];
+            _force[i * 3 + 1] -= tmp * _vec2[1];
+            _force[i * 3 + 2] -= tmp * _vec2[2];
 
             // Viscosity force
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
@@ -180,6 +197,8 @@ void Compute::CalculateForces() {
             );
         }
     }
+
+    printf("Kinetic energy: %f; Potential energy (apprx): %f; ", kinNrg, _initPotNrg - kinNrg);
 }
 
 void Compute::VelocityIntegration(bool firstStep) {

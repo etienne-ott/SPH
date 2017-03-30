@@ -71,6 +71,10 @@ private:
     ///     step, which requires special handling.
     bool _isFirstStep;
 
+    /// @var _initPotNrg double Holds the initial potential energy of the system,
+    /// or at least an approximation
+    double _initPotNrg;
+
     /// @var _vec1 double* A temporary 3D vector used in calculations.
     double* _vec1;
 

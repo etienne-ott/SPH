@@ -1,5 +1,5 @@
-#ifndef __KERNEL_HPP
-#define __KERNEL_HPP
+#ifndef __KERNEL_KERNEL_HPP
+#define __KERNEL_KERNEL_HPP
 
 class Kernel {
 public:
@@ -14,7 +14,7 @@ public:
     ///
     /// @param r double The distance to evaluate
     /// @return double The value of the kernel function
-    double Function(double r) const;
+    virtual double Function(double r) const = 0;
 
     /// Returns the first order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The
@@ -27,7 +27,7 @@ public:
     /// @param rz double The z component of the distance vector
     /// @param r double The scalar distance value
     /// @param ret double* Output vector (3 dimensional)
-    void FOD(double rx, double ry, double rz, double r, double* ret);
+    virtual void FOD(double rx, double ry, double rz, double r, double* ret) = 0;
 
     /// Returns the second order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The
@@ -45,7 +45,7 @@ public:
     /// @param rz double The z component of the distance vector
     /// @param r double The scalar distance value
     /// @param ret double* Output vector (9 dimensional)
-    void SOD(double rx, double ry, double rz, double r, double* ret);
+    virtual void SOD(double rx, double ry, double rz, double r, double* ret) = 0;
 
     /// Interpolates the density at position (rx,ry,rz) using the kernel
     /// the kernel function.
@@ -63,7 +63,7 @@ public:
     /// @param h double The new smoothing length.
     void SetH(double h);
 
-private:
+protected:
     /// @var _h double The range factor used by the kernel
     double _h;
 
@@ -76,4 +76,4 @@ private:
     /// @var _fac1 double A precalculated factor used in the kernel
     double _fac1;
 };
-#endif // __KERNEL_HPP
+#endif // __KERNEL_KERNEL_HPP

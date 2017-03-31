@@ -1,4 +1,4 @@
-#include "kernel.hpp"
+#include "kernel/kernel.hpp"
 #include "parameter.hpp"
 
 #ifndef __COMPUTE_HPP

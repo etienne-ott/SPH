@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "kernel.hpp"
+#include "kernel/kernel.hpp"
 #include "vtk.hpp"
 #include "ascii_output.hpp"
 #include "compute.hpp"

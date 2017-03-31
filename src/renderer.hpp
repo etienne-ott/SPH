@@ -1,5 +1,5 @@
 #include "SDL2/SDL.h"
-#include "kernel.hpp"
+#include "kernel/kernel.hpp"
 
 #ifndef __RENDERER_HPP
 #define __RENDERER_HPP

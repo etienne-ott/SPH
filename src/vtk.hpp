@@ -1,4 +1,4 @@
-#include "kernel.hpp"
+#include "kernel/kernel.hpp"
 #include <string>
 
 #ifndef __VTK_HPP

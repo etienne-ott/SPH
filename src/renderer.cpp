@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "kernel.hpp"
+#include "kernel/kernel.hpp"
 #include "SDL2/SDL.h"
 #include <algorithm>
 

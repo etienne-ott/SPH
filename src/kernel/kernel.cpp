@@ -19,7 +19,7 @@ double Kernel::InterpolateDensity(double rx, double ry, double rz, double* densi
                 + (position[j * 3 + 2] - rz) * (position[j * 3 + 2] - rz),
             0.5
         );
-        sum += _mass * density[j] * this->Function(distance);
+        sum += _mass * density[j] * this->ValueOf(distance);
     }
 
     return sum;

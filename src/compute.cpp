@@ -99,7 +99,7 @@ double Compute::CalculateDensity() {
                     + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
                 0.5
             );
-            sum += _param->mass * _kernel->Function(distance);
+            sum += _param->mass * _kernel->ValueOf(distance);
         }
 
         _density[i] = sum;

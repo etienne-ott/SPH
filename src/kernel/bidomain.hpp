@@ -8,10 +8,13 @@ public:
     /// @see Kernel::Kernel
     Bidomain(double h, int N, double mass);
 
-    double Function(double r) const;
+    /// @see Kernel::ValueOf
+    double ValueOf(double r) const;
 
+    /// @see Kernel::FOD
     void FOD(double rx, double ry, double rz, double r, double* ret);
 
+    /// @see Kernel::SOD
     void SOD(double rx, double ry, double rz, double r, double* ret);
 };
 #endif // __KERNEL_BIDOMAIN_HPP

@@ -14,7 +14,7 @@ public:
     ///
     /// @param r double The distance to evaluate
     /// @return double The value of the kernel function
-    virtual double Function(double r) const = 0;
+    virtual double ValueOf(double r) const = 0;
 
     /// Returns the first order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The

@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include "kernel/bidomain.hpp"
+#include "kernel/gaussian.hpp"
 #include "vtk.hpp"
 #include "ascii_output.hpp"
 #include "compute.hpp"
@@ -29,7 +30,7 @@ int main() {
     Renderer r = Renderer();
     r.Init(param.R, param.R);
 
-    Bidomain kernel = Bidomain(param.h, param.N, param.mass);
+    Gaussian kernel = Gaussian(param.h, param.N, param.mass);
     Compute compute = Compute(&param, &kernel);
 
     VTK vtk = VTK("output/vtk/", &kernel, 20);

@@ -167,7 +167,9 @@ void Compute::CalculateForces() {
 
             // Pressure force
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
-            tmp = 0.5 * _param->FSPressure * (_pressure[i] + _pressure[j]) * (_param->mass / _density[j]);
+            tmp = 0.5 * _param->FSPressure
+                * (_pressure[i] / (_density[i] * _density[i]) + _pressure[j] / (_density[j] * _density[j]))
+                * _param->mass * _density[i] / (_param->N - 1);
 
             _force[i * 3] -= tmp * _vec2[0];
             _force[i * 3 + 1] -= tmp * _vec2[1];
@@ -175,7 +177,7 @@ void Compute::CalculateForces() {
 
             // Viscosity force
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
-            tmp = _param->FSViscosity * _param->mu * _param->mass / _density[j];
+            tmp = _param->FSViscosity * _param->mu * _param->mass / (_density[i] * (_param->N - 1));
             dvx = _velocity[j * 3] - _velocity[i * 3];
             dvy = _velocity[j * 3 + 1] - _velocity[i * 3 + 1];
             dvz = _velocity[j * 3 + 2] - _velocity[i * 3 + 2];

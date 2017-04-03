@@ -130,7 +130,9 @@ void Compute::Timestep() {
 
 void Compute::CalculatePressure() {
     for (int i = 0; i < _param->N; i++) {
-        _pressure[i] = _param->k * (pow(_density[i] / _param->rho0, 7.0) - 1);
+        _pressure[i] = _param->k * _param->rho0
+            * (pow(_density[i] / _param->rho0, _param->gamma) - 1)
+            / _param->gamma;
     }
 }
 
@@ -169,7 +171,7 @@ void Compute::CalculateForces() {
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
             tmp = 0.5 * _param->FSPressure
                 * (_pressure[i] / (_density[i] * _density[i]) + _pressure[j] / (_density[j] * _density[j]))
-                * _param->mass * _density[i] / (_param->N - 1);
+                * _param->mass * _density[i];
 
             _force[i * 3] -= tmp * _vec2[0];
             _force[i * 3 + 1] -= tmp * _vec2[1];

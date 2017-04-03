@@ -12,6 +12,7 @@ Parameter::Parameter() {
     R = 400;
     tend = 500.0;
     k = 500.0;
+    gamma = 7.0;
     g = 9.81;
     dt = 0.1;
     rho0 = 1000.0;
@@ -43,6 +44,8 @@ void Parameter::Load(const char *filename) {
             R = (int)inval;
         } else if (strcmp(name, "k") == 0) {
             k = inval;
+        } else if (strcmp(name, "gamma") == 0) {
+            gamma = inval;
         } else if (strcmp(name, "dt") == 0) {
             dt = inval;
         } else if (strcmp(name, "tend") == 0) {

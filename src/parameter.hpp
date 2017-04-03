@@ -40,6 +40,7 @@ public:
 	int R;
 	double tend;
 	double k;
+	double gamma;
 	double g;
 	double dt;
 	double rho0;

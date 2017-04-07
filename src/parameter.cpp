@@ -18,6 +18,7 @@ Parameter::Parameter() {
     rho0 = 1000.0;
     mass = 1.0;
     mu = 0.1;
+    epsilon = 0.001;
     kappa = 1.0;
     dampening = 0.9;
     // @todo Force scaling should not be necessary
@@ -56,6 +57,8 @@ void Parameter::Load(const char *filename) {
             rho0 = inval;
         } else if (strcmp(name, "mu") == 0) {
             mu = inval;
+        } else if (strcmp(name, "epsilon") == 0) {
+            epsilon = inval;
         } else if (strcmp(name, "kappa") == 0) {
             kappa = inval;
         } else if (strcmp(name, "dampening") == 0) {

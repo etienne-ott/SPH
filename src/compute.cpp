@@ -99,11 +99,11 @@ double Compute::CalculateDensity() {
                     + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
                 0.5
             );
-            sum += _param->mass * _kernel->ValueOf(distance);
+            sum += _kernel->ValueOf(distance);
         }
 
-        _density[i] = sum;
-        avgsum += sum;
+        _density[i] = sum * _param->rho0;
+        avgsum += sum * _param->rho0;
     }
 
     return avgsum / _param->N;
@@ -152,7 +152,7 @@ void Compute::CalculateForces() {
             + _velocity[i * 3 + 2] * _velocity[i * 3 + 2]);
 
         // 1-body forces, currently only gravity
-        _force[i * 3 + 2] += _density[i] * _param->FSGravity * _param->mass * _param->g;
+        _force[i * 3 + 2] += _param->FSGravity * _param->g;
 
         // 2-body forces
         // @todo Use symmetry to reduce number of calculations by a factor of 2
@@ -171,7 +171,7 @@ void Compute::CalculateForces() {
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
             tmp = 0.5 * _param->FSPressure
                 * (_pressure[i] / (_density[i] * _density[i]) + _pressure[j] / (_density[j] * _density[j]))
-                * _param->mass * _density[i];
+                * _density[i];
 
             _force[i * 3] -= tmp * _vec2[0];
             _force[i * 3 + 1] -= tmp * _vec2[1];
@@ -179,28 +179,23 @@ void Compute::CalculateForces() {
 
             // Viscosity force
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
-            tmp = _param->FSViscosity * _param->mu * _param->mass / (_density[i] * (_param->N - 1));
             dvx = _velocity[j * 3] - _velocity[i * 3];
             dvy = _velocity[j * 3 + 1] - _velocity[i * 3 + 1];
             dvz = _velocity[j * 3 + 2] - _velocity[i * 3 + 2];
+            tmp = _param->FSViscosity * _param->mu * (dvx * _vec1[0] + dvy * _vec1[1] + dvz * _vec1[2])
+                / (distance * distance + _param->epsilon * _param->h * _param->h);
 
-            _force[i * 3] += tmp * (
-                (_vec1[0] < 0.00000001 && _vec1[0] > -0.00000001 ? 0.0 : dvx * _matr1[0])
-                + (_vec1[1] < 0.00000001 && _vec1[1] > -0.00000001 ? 0.0 : dvy * _matr1[1])
-                + (_vec1[2] < 0.00000001 && _vec1[2] > -0.00000001 ? 0.0 : dvz * _matr1[2])
-            );
+            _force[i * 3] += tmp * _vec1[0] * _matr1[0] / distance
+                + tmp * _vec1[1] * _matr1[1] / distance
+                + tmp * _vec1[2] * _matr1[2] / distance;
 
-            _force[i * 3 + 1] += tmp * (
-                (_vec1[0] < 0.00000001 && _vec1[0] > -0.00000001 ? 0.0 : dvx * _matr1[3])
-                + (_vec1[1] < 0.00000001 && _vec1[1] > -0.00000001 ? 0.0 : dvy * _matr1[4])
-                + (_vec1[2] < 0.00000001 && _vec1[2] > -0.00000001 ? 0.0 : dvz * _matr1[5])
-            );
+            _force[i * 3 + 1] += tmp * _vec1[0] * _matr1[3] / distance
+                + tmp * _vec1[1] * _matr1[4] / distance
+                + tmp * _vec1[2] * _matr1[5] / distance;
 
-            _force[i * 3 + 2] += tmp * (
-                (_vec1[0] < 0.00000001 && _vec1[0] > -0.00000001 ? 0.0 : dvx * _matr1[6])
-                + (_vec1[1] < 0.00000001 && _vec1[1] > -0.00000001 ? 0.0 : dvy * _matr1[7])
-                + (_vec1[2] < 0.00000001 && _vec1[2] > -0.00000001 ? 0.0 : dvz * _matr1[8])
-            );
+            _force[i * 3 + 2] += tmp * _vec1[0] * _matr1[6] / distance
+                + tmp * _vec1[1] * _matr1[7] / distance
+                + tmp * _vec1[2] * _matr1[8] / distance;
         }
     }
 
@@ -210,9 +205,9 @@ void Compute::CalculateForces() {
 void Compute::VelocityIntegration(bool firstStep) {
     if (firstStep) {
         for (int i = 0; i < _param->N; i++) {
-            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 + _param->dt * _force[i * 3] / _density[i];
-            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 + _param->dt * _force[i * 3 + 1] / _density[i];
-            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 + _param->dt * _force[i * 3 + 2] / _density[i];
+            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 * _param->dt * _force[i * 3] / _density[i];
+            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 * _param->dt * _force[i * 3 + 1] / _density[i];
+            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 * _param->dt * _force[i * 3 + 2] / _density[i];
         }
         return;
     }

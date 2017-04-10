@@ -9,12 +9,12 @@
 #define WRITE_VTK_OUTPUT false
 #define WRITE_ASCII_OUTPUT false
 
-/// Checks if there has been a SDL_QUIT event since the last time SLD events
+/// Checks if there has been a SDL_QUIT event since the last time SDL events
 /// were checked.
 ///
 /// @param event SDL_Event* A variable where the event (if any) will be stored
 /// @return bool If there has been a SDL_QUIT event
-bool checkQuitSLDEvent(SDL_Event* event) {
+bool checkQuitSDLEvent(SDL_Event* event) {
     if (SDL_PollEvent(event)) {
         if (event->type == SDL_QUIT) {
             return true;
@@ -54,14 +54,14 @@ int main() {
         }
 
         r.DebugViewPositions(compute.GetPosition(), param.N, t);
-        running = !checkQuitSLDEvent(&event);
+        running = !checkQuitSDLEvent(&event);
 
         t += param.dt;
     }
 
     while (running) {
         SDL_Delay(30);
-        running = !checkQuitSLDEvent(&event);
+        running = !checkQuitSDLEvent(&event);
     }
 
     return 0;

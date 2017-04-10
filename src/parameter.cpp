@@ -9,7 +9,9 @@ using namespace std;
 Parameter::Parameter() {
     N = 50;
     h = 0.3;
-    R = 400;
+    Rix = 400;
+    Riy = 600;
+    Ro = 50;
     tend = 500.0;
     k = 500.0;
     gamma = 7.0;
@@ -41,8 +43,12 @@ void Parameter::Load(const char *filename) {
             N = (int)inval;
         } else if (strcmp(name, "h") == 0) {
             h = inval;
-        } else if (strcmp(name, "R") == 0) {
-            R = (int)inval;
+        } else if (strcmp(name, "Rix") == 0) {
+            Rix = (int)inval;
+        } else if (strcmp(name, "Riy") == 0) {
+            Riy = (int)inval;
+        } else if (strcmp(name, "Ro") == 0) {
+            Ro = (int)inval;
         } else if (strcmp(name, "k") == 0) {
             k = inval;
         } else if (strcmp(name, "gamma") == 0) {

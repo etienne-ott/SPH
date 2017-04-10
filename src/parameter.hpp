@@ -37,7 +37,9 @@ public:
 
     int N;
     double h;
-    int R;
+    int Rix;
+    int Riy;
+    int Ro;
     double tend;
     double k;
     double gamma;

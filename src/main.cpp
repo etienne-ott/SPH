@@ -28,7 +28,7 @@ int main() {
     param.Load("sample.param");
 
     Renderer r = Renderer();
-    r.Init(param.R, param.R);
+    r.Init(param.Rix, param.Riy, param.Ro);
 
     Gaussian kernel = Gaussian(param.h, param.N, param.mass);
     Compute compute = Compute(&param, &kernel);

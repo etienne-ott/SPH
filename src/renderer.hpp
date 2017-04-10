@@ -16,7 +16,7 @@ public:
     ///
     /// @param width int& The width of the viewport
     /// @param height int& The height of the viewport
-    void Init(const int &width, const int &height);
+    void Init(const int &width, const int &height, const int &border);
 
     /// Sets the color of the given pixel to the given RGB value.
     ///
@@ -56,6 +56,10 @@ private:
 
     /// @var _height int The height of the viewport.
     int _height;
+
+    /// @var _border int Width of the border region to the sides and below the
+    /// domain region
+    int _border;
 
     /// @var _title char* The title of the window.
     char* _title;

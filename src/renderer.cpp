@@ -29,18 +29,13 @@ void Renderer::SetPixelRGB(int x, int y, uint8_t r, uint8_t g, uint8_t b) {
     *pixmem32 = colour;
 }
 
-void Renderer::Init(const int &width, const int &height) {
+void Renderer::Init(const int &width, const int &height, const int &border) {
     _width = width;
     _height = height;
+    _border = border;
     _window = SDL_CreateWindow(_title, SDL_WINDOWPOS_UNDEFINED,
-    SDL_WINDOWPOS_UNDEFINED, _width, _height, 0);
+        SDL_WINDOWPOS_UNDEFINED, _width + 2 * _border, _height + 2 * _border, 0);
     _screen = SDL_GetWindowSurface(_window);
-
-    for (int x = 0; x < _width; ++x) {
-        for (int y = 0; y < _height; ++y) {
-            this->SetPixelRGB(x, y, 0, 0, 0);
-        }
-    }
 }
 
 int Renderer::Render() {
@@ -61,18 +56,31 @@ int Renderer::Render() {
 }
 
 void Renderer::DebugViewPositions(double* position, int N, double time) {
-    for (int i = 0; i < _width; i++) {
-        for (int j = 0; j < _height; j++) {
+    // Clear
+    for (int i = 0; i < _width + 2 * _border; i++) {
+        for (int j = 0; j < _height + 2 * _border; j++) {
             this->SetPixelRGB(i, j, 255, 255, 255);
         }
     }
 
+    // Lower border
+    for (int i = _border; i < _width + _border; i++) {
+        this->SetPixelRGB(i, _border + _height, 0, 0, 0);
+    }
+
+    // Side borders
+    for (int i = _border + _height; i > 0; i--) {
+        this->SetPixelRGB(_border, i, 0, 0, 0);
+        this->SetPixelRGB(_width + _border, i, 0, 0, 0);
+    }
+
+    // Draw particles in x-z plain
     for (int i = 0; i < N; i++) {
-        int iposx = (int)(_width * position[i * 3]),
-            iposz = _height - (int)(_height * position[i * 3 + 2]),
+        int iposx = _border + (int)(_width * position[i * 3]),
+            iposz = _border + _height - (int)(_width * position[i * 3 + 2]),
             yrange = max(0, min(10, (int)(10 * (1.0 - position[i * 3 + 1]))));
-        for (int k = iposx - yrange < 0 ? 0 : iposx - yrange; k < iposx + yrange && k < _width; k++) {
-            for (int l = iposz - yrange < 0 ? 0 : iposz - yrange; l < iposz + yrange && l < _height; l++) {
+        for (int k = iposx - yrange < 0 ? 0 : iposx - yrange; k < iposx + yrange && k < _width + _border; k++) {
+            for (int l = iposz - yrange < 0 ? 0 : iposz - yrange; l < iposz + yrange && l < _height + 2 * _border; l++) {
                 this->SetPixelRGB(k, l, 0, 0, 0);
             }
         }

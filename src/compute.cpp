@@ -22,7 +22,7 @@ Compute::Compute(Parameter* param, Kernel* kernel) {
     _pressure = new double[_param->N];
 
     double r = _param->h / _param->kappa, x = 0, y = 0, z = 0,
-        offsetX = r, offsetY = r, offsetZ = r;
+        offsetX = r - 0.5 * r, offsetY = r - 0.5 * r, offsetZ = r - 0.5 * r;
     bool oddRow = true, oddLayer = true;
     RandomPool pool = RandomPool();
 
@@ -31,22 +31,22 @@ Compute::Compute(Parameter* param, Kernel* kernel) {
         _position[i * 3 + 1] = offsetY + y + pool.NextDouble(0.0, 0.00001);
         _position[i * 3 + 2] = offsetZ + z + pool.NextDouble(0.0, 0.00001);
 
-        x += 2 * r;
-        if (offsetX + x > 1.0 - r) {
+        x += r;
+        if (offsetX + x > 1.0 - r * 0.25) {
             oddRow = !oddRow;
             x = 0;
-            offsetX = oddLayer ? (oddRow ? r : 2 * r) : (oddRow ? 2 * r : r);
-            y += sqrt(3) * r;
+            offsetX = oddLayer ? (oddRow ? 0.5 * r : r) : (oddRow ? r : 0.5 * r);
+            y += sqrt(3) * r * 0.5;
         }
 
-        if (offsetY + y > 1.0 - r) {
+        if (offsetY + y > 1.0 - r * 0.25) {
             oddLayer = !oddLayer;
             oddRow = true;
             x = 0;
             y = 0;
-            offsetX = oddLayer ? r : 2 * r;
-            offsetY = oddLayer ? r : sqrt(3) * r;
-            z += sqrt(3) * r;
+            offsetX = oddLayer ? 0.5 * r : r;
+            offsetY = oddLayer ? 0.5 * r: (sqrt(3) - 1) * r * 0.5;
+            z += sqrt(3) * r * 0.5;
         }
 
         _velocity[i * 3] = pool.NextDouble(0.0, 0.001);

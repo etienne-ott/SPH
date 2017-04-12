@@ -2,7 +2,7 @@
 #include <cstdio>
 #include "compute.hpp"
 #include "parameter.hpp"
-#include "random_pool.hpp"
+#include "initialization.hpp"
 
 Compute::Compute(Parameter* param, Kernel* kernel) {
     _param = param;
@@ -21,45 +21,12 @@ Compute::Compute(Parameter* param, Kernel* kernel) {
     _density = new double[_param->N];
     _pressure = new double[_param->N];
 
-    double r = _param->h / _param->kappa, x = 0, y = 0, z = 0,
-        offsetX = r - 0.5 * r, offsetY = r - 0.5 * r, offsetZ = r - 0.5 * r;
-    bool oddRow = true, oddLayer = true;
-    RandomPool pool = RandomPool();
-
-    for (int i = 0; i < _param->N; i++) {
-        _position[i * 3] = offsetX + x + pool.NextDouble(0.0, 0.00001);
-        _position[i * 3 + 1] = offsetY + y + pool.NextDouble(0.0, 0.00001);
-        _position[i * 3 + 2] = offsetZ + z + pool.NextDouble(0.0, 0.00001);
-
-        x += r;
-        if (offsetX + x > 1.0 - r * 0.25) {
-            oddRow = !oddRow;
-            x = 0;
-            offsetX = oddLayer ? (oddRow ? 0.5 * r : r) : (oddRow ? r : 0.5 * r);
-            y += sqrt(3) * r * 0.5;
-        }
-
-        if (offsetY + y > 1.0 - r * 0.25) {
-            oddLayer = !oddLayer;
-            oddRow = true;
-            x = 0;
-            y = 0;
-            offsetX = oddLayer ? 0.5 * r : r;
-            offsetY = oddLayer ? 0.5 * r: (sqrt(3) - 1) * r * 0.5;
-            z += sqrt(3) * r * 0.5;
-        }
-
-        _velocity[i * 3] = pool.NextDouble(0.0, 0.001);
-        _velocity[i * 3 + 1] = pool.NextDouble(0.0, 0.001);
-        _velocity[i * 3 + 2] = pool.NextDouble(0.0, 0.001);
-
-        _force[i * 3] = 0.0;
-        _force[i * 3 + 1] = 0.0;
-        _force[i * 3 + 2] = 0.0;
-
-        _density[i] = 0.0;
-        _pressure[i] = 0.0;
-    }
+    Initialization init = Initialization(_param);
+    init.InitPosition(_position);
+    init.InitVelocity(_velocity);
+    init.InitPressure(_pressure);
+    init.InitForce(_force);
+    init.InitDensity(_density);
 
     double avg = this->CalculateDensity();
     _param->NormalizeMass(_density, _param->N);

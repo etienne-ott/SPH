@@ -1,7 +1,7 @@
-#include <cstdio>  // file methods
-#include <cstring> // string
-#include <cstdlib> // read/write
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include "parameter.hpp"
 
 using namespace std;
@@ -30,57 +30,66 @@ Parameter::Parameter() {
 }
 
 void Parameter::Load(const char *filename) {
-    FILE* handle = fopen(filename, "r");
-    double inval;
-    char name[50];
+    ifstream fin(filename);
+    string line;
 
-    while (!feof(handle)) {
-        if (!fscanf(handle, "%s = %lf\n", name, &inval)) {
+    while (getline(fin, line)) {
+        if (
+            line.find("#") != string::npos
+            || line.length() == 0
+        ) {
             continue;
         }
 
-        if (strcmp(name, "N") == 0){
-            N = (int)inval;
-        } else if (strcmp(name, "h") == 0) {
-            h = inval;
-        } else if (strcmp(name, "Rix") == 0) {
-            Rix = (int)inval;
-        } else if (strcmp(name, "Riy") == 0) {
-            Riy = (int)inval;
-        } else if (strcmp(name, "Ro") == 0) {
-            Ro = (int)inval;
-        } else if (strcmp(name, "k") == 0) {
-            k = inval;
-        } else if (strcmp(name, "gamma") == 0) {
-            gamma = inval;
-        } else if (strcmp(name, "dt") == 0) {
-            dt = inval;
-        } else if (strcmp(name, "tend") == 0) {
-            tend = inval;
-        } else if (strcmp(name, "g") == 0) {
-            g = inval;
-        } else if (strcmp(name, "rho0") == 0) {
-            rho0 = inval;
-        } else if (strcmp(name, "mu") == 0) {
-            mu = inval;
-        } else if (strcmp(name, "epsilon") == 0) {
-            epsilon = inval;
-        } else if (strcmp(name, "kappa") == 0) {
-            kappa = inval;
-        } else if (strcmp(name, "dampening") == 0) {
-            dampening = inval;
-        } else if (strcmp(name, "fspressure") == 0) {
-            FSPressure = inval;
-        } else if (strcmp(name, "fsgravity") == 0) {
-            FSGravity = inval;
-        } else if (strcmp(name, "fsviscosity") == 0) {
-            FSViscosity = inval;
-        } else {
-            printf("Unknown parameter %s\n",name);
+        istringstream sin(line.substr(line.find("=") + 1));
+
+        // The following checks need to be in a specific order. The reason
+        // for this is that looking for the string "h" might be true for
+        // the input string "h = 0.1", but also for "rho0 = 1000". Therefore
+        // we need to check the strings, that contain other, shorter parameter
+        // names, first, then the short ones.
+        // @todo Do this more cleverly, so the order doesn't matter and the
+        // exact parameter name is required
+        if (line.find("epsilon") != string::npos)
+            sin >> epsilon;
+        else if (line.find("kappa") != string::npos)
+            sin >> kappa;
+        else if (line.find("dampening") != string::npos)
+            sin >> dampening;
+        else if (line.find("fspressure") != string::npos)
+            sin >> FSPressure;
+        else if (line.find("fsgravity") != string::npos)
+            sin >> FSGravity;
+        else if (line.find("fsviscosity") != string::npos)
+            sin >> FSViscosity;
+        else if (line.find("gamma") != string::npos)
+            sin >> gamma;
+        else if (line.find("Rix") != string::npos)
+            sin >> Rix;
+        else if (line.find("Riy") != string::npos)
+            sin >> Riy;
+        else if (line.find("Ro") != string::npos)
+            sin >> Ro;
+        else if (line.find("rho0") != string::npos)
+            sin >> rho0;
+        else if (line.find("tend") != string::npos)
+            sin >> tend;
+        else if (line.find("dt") != string::npos)
+            sin >> dt;
+        else if (line.find("N") != string::npos)
+            sin >> N;
+        else if (line.find("h") != string::npos)
+            sin >> h;
+        else if (line.find("k") != string::npos)
+            sin >> k;
+        else if (line.find("g") != string::npos)
+            sin >> g;
+        else if (line.find("mu") != string::npos)
+            sin >> mu;
+        else {
+            printf("Unknown parameter in line: %s\n", line.c_str());
         }
     }
-
-    fclose(handle);
 }
 
 double Parameter::NormalizeMass(double* density, int N) {

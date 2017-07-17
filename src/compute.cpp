@@ -123,6 +123,15 @@ void Compute::CalculateForces() {
 
         // 2-body forces
         // @todo Use symmetry to reduce number of calculations by a factor of 2
+        double* pressureForce = new double[3];
+        pressureForce[0] = 0.0;
+        pressureForce[1] = 0.0;
+        pressureForce[2] = 0.0;
+        double* viscosityForce = new double[3];
+        viscosityForce[0] = 0.0;
+        viscosityForce[1] = 0.0;
+        viscosityForce[2] = 0.0;
+
         for (int j = 0; j < _param->N; j++) {
             if (j == i) {
                 continue;
@@ -136,34 +145,47 @@ void Compute::CalculateForces() {
 
             // Pressure force
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
-            tmp = 0.5 * _param->FSPressure
-                * (_pressure[i] / (_density[i] * _density[i]) + _pressure[j] / (_density[j] * _density[j]))
-                * _density[i];
+            tmp = _param->FSPressure
+                * (
+                    _pressure[i] / (_density[i] * _density[i])
+                    + _pressure[j] / (_density[j] * _density[j])
+                );
 
-            _force[i * 3] -= tmp * _vec2[0];
-            _force[i * 3 + 1] -= tmp * _vec2[1];
-            _force[i * 3 + 2] -= tmp * _vec2[2];
+            pressureForce[0] += tmp * _vec2[0];
+            pressureForce[1] += tmp * _vec2[1];
+            pressureForce[2] += tmp * _vec2[2];
 
             // Viscosity force
             _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
             dvx = _velocity[j * 3] - _velocity[i * 3];
             dvy = _velocity[j * 3 + 1] - _velocity[i * 3 + 1];
             dvz = _velocity[j * 3 + 2] - _velocity[i * 3 + 2];
-            tmp = _param->FSViscosity * _param->mu * (dvx * _vec1[0] + dvy * _vec1[1] + dvz * _vec1[2])
+            tmp = _param->FSViscosity * (dvx * _vec1[0] + dvy * _vec1[1] + dvz * _vec1[2])
                 / (distance * distance + _param->epsilon * _param->h * _param->h);
 
-            _force[i * 3] += tmp * _vec1[0] * _matr1[0] / distance
+            viscosityForce[0] += tmp * _vec1[0] * _matr1[0] / distance
                 + tmp * _vec1[1] * _matr1[1] / distance
                 + tmp * _vec1[2] * _matr1[2] / distance;
 
-            _force[i * 3 + 1] += tmp * _vec1[0] * _matr1[3] / distance
+            viscosityForce[1] += tmp * _vec1[0] * _matr1[3] / distance
                 + tmp * _vec1[1] * _matr1[4] / distance
                 + tmp * _vec1[2] * _matr1[5] / distance;
 
-            _force[i * 3 + 2] += tmp * _vec1[0] * _matr1[6] / distance
+            viscosityForce[2] += tmp * _vec1[0] * _matr1[6] / distance
                 + tmp * _vec1[1] * _matr1[7] / distance
                 + tmp * _vec1[2] * _matr1[8] / distance;
         }
+
+        _force[i * 3] -= _density[i] * pressureForce[0];
+        _force[i * 3 + 1] -= _density[i] * pressureForce[1];
+        _force[i * 3 + 2] -= _density[i] * pressureForce[2];
+
+        _force[i * 3] += _param->mu * viscosityForce[0];
+        _force[i * 3 + 1] += _param->mu * viscosityForce[1];
+        _force[i * 3 + 2] += _param->mu * viscosityForce[2];
+
+        delete pressureForce;
+        delete viscosityForce;
     }
 
     printf("Kinetic energy: %f; Potential energy (apprx): %f; ", kinNrg, _initPotNrg - kinNrg);

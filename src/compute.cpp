@@ -119,7 +119,7 @@ void Compute::CalculateForces() {
             + _velocity[i * 3 + 2] * _velocity[i * 3 + 2]);
 
         // 1-body forces, currently only gravity
-        _force[i * 3 + 2] += _param->FSGravity * _param->g;
+        _force[i * 3 + 2] += _param->mass * _param->FSGravity * _param->g;
 
         // 2-body forces
         // @todo Use symmetry to reduce number of calculations by a factor of 2

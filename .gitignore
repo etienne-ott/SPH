@@ -1,7 +1,6 @@
 # build targets and make system stuff
 build/
-.sconsign.dblite
-*.o
+include/
 
 # output folder (specific files will be added to a commit manually)
-output
+output/

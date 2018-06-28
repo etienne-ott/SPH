@@ -5,16 +5,16 @@ class Kernel {
 public:
     /// Constructor.
     ///
-    /// @param h double The range factor for the kernel
+    /// @param h float The range factor for the kernel
     /// @param N int The number of particles
-    /// @param mass double The mass of a particle
-    Kernel(double h, int N, double mass);
+    /// @param mass float The mass of a particle
+    Kernel(float h, int N, float mass);
 
     /// Returns the value of the kernel evaluated with the given distance.
     ///
-    /// @param r double The distance to evaluate
-    /// @return double The value of the kernel function
-    virtual double ValueOf(double r) const = 0;
+    /// @param r float The distance to evaluate
+    /// @return float The value of the kernel function
+    virtual float ValueOf(float r) const = 0;
 
     /// Returns the first order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The
@@ -22,12 +22,12 @@ public:
     /// often necessarily calculated beforehand anyway, it is expected to be
     /// given as a parameter.
     ///
-    /// @param rx double The x component of the distance vector
-    /// @param ry double The y component of the distance vector
-    /// @param rz double The z component of the distance vector
-    /// @param r double The scalar distance value
-    /// @param ret double* Output vector (3 dimensional)
-    virtual void FOD(double rx, double ry, double rz, double r, double* ret) = 0;
+    /// @param rx float The x component of the distance vector
+    /// @param ry float The y component of the distance vector
+    /// @param rz float The z component of the distance vector
+    /// @param r float The scalar distance value
+    /// @param ret float* Output vector (3 dimensional)
+    virtual void FOD(float rx, float ry, float rz, float r, float* ret) = 0;
 
     /// Returns the second order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The
@@ -40,40 +40,40 @@ public:
     /// zero when dealing with floating point arithmetic. Therefore calls to
     /// this method should not be done with arguments that have zero values.
     ///
-    /// @param rx double The x component of the distance vector
-    /// @param ry double The y component of the distance vector
-    /// @param rz double The z component of the distance vector
-    /// @param r double The scalar distance value
-    /// @param ret double* Output vector (9 dimensional)
-    virtual void SOD(double rx, double ry, double rz, double r, double* ret) = 0;
+    /// @param rx float The x component of the distance vector
+    /// @param ry float The y component of the distance vector
+    /// @param rz float The z component of the distance vector
+    /// @param r float The scalar distance value
+    /// @param ret float* Output vector (9 dimensional)
+    virtual void SOD(float rx, float ry, float rz, float r, float* ret) = 0;
 
     /// Interpolates the density at position (rx,ry,rz) using the kernel
     /// the kernel function.
     ///
-    /// @param rx double The x component of the interpolation position
-    /// @param ry double The y component of the interpolation position
-    /// @param rz double The z component of the interpolation position
-    /// @param density double* The density values of the particles
-    /// @param position double* The position of the particles
-    /// @return double The interpolated density value at position (rx,ry,rz)
-    double InterpolateDensity(double rx, double ry, double rz, double* density, double* position) const;
+    /// @param rx float The x component of the interpolation position
+    /// @param ry float The y component of the interpolation position
+    /// @param rz float The z component of the interpolation position
+    /// @param density float* The density values of the particles
+    /// @param position float* The position of the particles
+    /// @return float The interpolated density value at position (rx,ry,rz)
+    float InterpolateDensity(float rx, float ry, float rz, float* density, float* position) const;
 
     /// Sets the smoothing length uses by the kernel to the given value.
     ///
-    /// @param h double The new smoothing length.
-    void SetH(double h);
+    /// @param h float The new smoothing length.
+    void SetH(float h);
 
 protected:
-    /// @var _h double The range factor used by the kernel
-    double _h;
+    /// @var _h float The range factor used by the kernel
+    float _h;
 
     /// @var _N int The number of particles
     int _N;
 
-    /// @var _mass double The mass of a particle
-    double _mass;
+    /// @var _mass float The mass of a particle
+    float _mass;
 
-    /// @var _fac1 double A precalculated factor used in the kernel
-    double _fac1;
+    /// @var _fac1 float A precalculated factor used in the kernel
+    float _fac1;
 };
 #endif // __KERNEL_KERNEL_HPP

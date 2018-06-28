@@ -1,5 +1,4 @@
 #include "ascii_output.hpp"
-#include "parameter.hpp"
 #include <string>
 
 using namespace std;
@@ -9,7 +8,7 @@ ASCIIOutput::ASCIIOutput(string path) {
     _count = 1;
 }
 
-void ASCIIOutput::WriteParticleStatus(double* density, double* position, Parameter* param) {
+void ASCIIOutput::WriteParticleStatus(float* density, float* position, YAML::Node& param) {
     char* filename = new char[255];
     sprintf(filename, "%sfield_%i.dat", _path.c_str(), _count);
     FILE* handle = fopen(filename, "w");
@@ -17,7 +16,7 @@ void ASCIIOutput::WriteParticleStatus(double* density, double* position, Paramet
 
     fprintf(handle, "x\ty\tz\tdensity\tsmoothing length\tmass\n");
 
-    for (int i = 0; i < param->N; i++) {
+    for (int i = 0; i < param["N"].as<int>(); i++) {
         fprintf(
             handle,
             "%f\t%f\t%f\t%f\t%f\t%f\n",
@@ -25,8 +24,8 @@ void ASCIIOutput::WriteParticleStatus(double* density, double* position, Paramet
             position[i * 3 + 1],
             position[i * 3 + 2],
             density[i],
-            param->h,
-            param->mass
+            param["h"].as<float>(),
+            param["mass"].as<float>()
         );
     }
     fclose(handle);

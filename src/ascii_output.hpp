@@ -1,5 +1,5 @@
-#include "parameter.hpp"
 #include <string>
+#include <yaml-cpp/yaml.h>
 
 #ifndef __ASCII_OUTPUT
 #define __ASCII_OUTPUT
@@ -18,11 +18,11 @@ public:
     /// encoded. Each call since instantiation will increment the file
     /// names by one, so the files will be called field_1.dat, field_2.dat etc.
     ///
-    /// @param density double* The particle densities
-    /// @param position double* The particle positions
-    /// @param param Parameter* The parameter object holding the simulation
+    /// @param density float* The particle densities
+    /// @param position float* The particle positions
+    /// @param param YAML::Node& The parameter object holding the simulation
     ///   parameters.
-    void WriteParticleStatus(double* density, double* position, Parameter* param);
+    void WriteParticleStatus(float* density, float* position, YAML::Node& param);
 
 private:
     /// @var _path string The path where the data files will be stored.

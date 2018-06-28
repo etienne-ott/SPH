@@ -11,14 +11,14 @@ VTK::VTK(string path, const Kernel* kernel, int size) {
     _count = 1;
 }
 
-void VTK::WriteDensity(double* density, double* position) {
+void VTK::WriteDensity(float* density, float* position) {
     char* filename = new char[255];
     sprintf(filename, "%sfield_%i.vts", _path.c_str(), _count);
 
     FILE* handle = fopen(filename, "w");
     delete filename;
 
-    double ds = 1.0 / _size;
+    float ds = 1.0 / _size;
 
     fprintf(handle, "<?xml version=\"1.0\"?>\n");
     fprintf(handle, "<VTKFile type=\"StructuredGrid\">\n");
@@ -31,9 +31,9 @@ void VTK::WriteDensity(double* density, double* position) {
         for (int y = 0; y <= _size; ++y) {
             for (int x = 0; x <= _size; ++x) {
                 fprintf(handle, "%le %le %le\n",
-                    (double)x * ds,
-                    (double)y * ds,
-                    (double)z * ds
+                    (float)x * ds,
+                    (float)y * ds,
+                    (float)z * ds
                 );
             }
         }
@@ -49,7 +49,7 @@ void VTK::WriteDensity(double* density, double* position) {
     for (int z = 0; z <= _size; ++z) {
         for (int y = 0; y <= _size; ++y) {
             for (int x = 0; x <= _size; ++x) {
-                double d = _kernel->InterpolateDensity(x*ds, y*ds, z*ds, density, position);
+                float d = _kernel->InterpolateDensity(x*ds, y*ds, z*ds, density, position);
                 fprintf(handle, "%le ", (d > 0.5 ? 1.0 : 0.0));
             }
             fprintf(handle, "\n");

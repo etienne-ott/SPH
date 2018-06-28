@@ -1,5 +1,5 @@
 #include "kernel/kernel.hpp"
-#include "parameter.hpp"
+#include <yaml-cpp/yaml.h>
 
 #ifndef __COMPUTE_HPP
 #define __COMPUTE_HPP
@@ -8,9 +8,9 @@ class Compute {
 public:
     /// Constructor.
     ///
-    /// @param param Parameter* The parameter object
+    /// @param param YAML::Node& The parameter object
     /// @param kernel Kernel* The kernel used for calculations
-    Compute(Parameter* param, Kernel* kernel);
+    Compute(YAML::Node& param, Kernel* kernel);
 
     /// Destructor. Destroys the data fields properly, that were created
     /// during initialization.
@@ -20,8 +20,8 @@ public:
     /// position and the kernel. Also returns the average density of
     /// the fluid.
     ///
-    /// @return double The average density of the fluid
-    double CalculateDensity();
+    /// @return float The average density of the fluid
+    float CalculateDensity();
 
     /// Calculates the pressure at the particle positions.
     void CalculatePressure();
@@ -49,20 +49,20 @@ public:
     void Timestep();
 
     /// Returns the particle positions as consecutive x, y and z components,
-    /// for an overall number of 3*N doubles.
+    /// for an overall number of 3*N floats.
     /// 
-    /// @return double* The particle positions
-    double* GetPosition();
+    /// @return float* The particle positions
+    float* GetPosition();
 
     /// Returns the particle densities as consecutive values for each particle.
     /// 
-    /// @return double* The particle densities
-    double* GetDensity();
+    /// @return float* The particle densities
+    float* GetDensity();
 
 private:
-    /// @var _param Parameter* The parameter object containing the values
+    /// @var _param YAML::Node The parameter object containing the values
     /// of all necessary parameters.
-    Parameter* _param;
+    YAML::Node _param;
 
     /// @var _kernel Kernel* The kernel to use for calculations.
     Kernel* _kernel;
@@ -71,38 +71,38 @@ private:
     ///     step, which requires special handling.
     bool _isFirstStep;
 
-    /// @var _initPotNrg double Holds the initial potential energy of the system,
+    /// @var _initPotNrg float Holds the initial potential energy of the system,
     /// or at least an approximation
-    double _initPotNrg;
+    float _initPotNrg;
 
-    /// @var _vec1 double* A temporary 3D vector used in calculations.
-    double* _vec1;
+    /// @var _vec1 float* A temporary 3D vector used in calculations.
+    float* _vec1;
 
-    /// @var _vec1 double* A temporary 3D vector used in calculations.
-    double* _vec2;
+    /// @var _vec1 float* A temporary 3D vector used in calculations.
+    float* _vec2;
 
-    /// @var _matr1 double* A temporary 3x3 matrix used in calculations. The
+    /// @var _matr1 float* A temporary 3x3 matrix used in calculations. The
     ///     matrix is indexed row by row.
-    double* _matr1;
+    float* _matr1;
 
-    /// @var _position double* The particle positions in x, y and z coordinates.
-    double* _position;
+    /// @var _position float* The particle positions in x, y and z coordinates.
+    float* _position;
 
-    /// @var _velocity double* The particle velocities in x, y and z components.
-    double* _velocity;
+    /// @var _velocity float* The particle velocities in x, y and z components.
+    float* _velocity;
 
-    /// @var _velocity double* The particle velocities in x, y and z components.
-    double* _velocity_halfs;
+    /// @var _velocity float* The particle velocities in x, y and z components.
+    float* _velocity_halfs;
 
-    /// @var _force double* The sum of all forces acting on the particles in x,
+    /// @var _force float* The sum of all forces acting on the particles in x,
     ///     y and z components.
-    double* _force;
+    float* _force;
 
-    /// @var _density double* The density of the fluid particles.
-    double* _density;
+    /// @var _density float* The density of the fluid particles.
+    float* _density;
 
-    /// @var _pressure double* The pressure of the fluid particles themselves,
+    /// @var _pressure float* The pressure of the fluid particles themselves,
     ///     as opposed to the pressure acting on them by other particles.
-    double* _pressure;
+    float* _pressure;
 };
 #endif // __COMPUTE_HPP

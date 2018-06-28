@@ -1,16 +1,16 @@
 #include "kernel.hpp"
 #include <cmath>
 
-Kernel::Kernel(double h, int N, double mass) {
+Kernel::Kernel(float h, int N, float mass) {
     _h = h;
     _N = N;
     _mass = mass;
     _fac1 = 1.0 / (4.0 * h * h * h * N);
 }
 
-double Kernel::InterpolateDensity(double rx, double ry, double rz, double* density, double* position) const {
-    double sum = 0.0;
-    double distance = 0.0;
+float Kernel::InterpolateDensity(float rx, float ry, float rz, float* density, float* position) const {
+    float sum = 0.0;
+    float distance = 0.0;
 
     for (int j = 0; j < _N; j++) {
         distance = pow(
@@ -25,7 +25,7 @@ double Kernel::InterpolateDensity(double rx, double ry, double rz, double* densi
     return sum;
 }
 
-void Kernel::SetH(double h) {
+void Kernel::SetH(float h) {
     _h = h;
     _fac1 = 1.0 / (4.0 * h * h * h * _N);
 }

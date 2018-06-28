@@ -1,20 +1,20 @@
-#include "initialization.hpp"
 #include "random_pool.hpp"
+#include "initialization.hpp"
 
-Initialization::Initialization(Parameter* param) {
+Initialization::Initialization(YAML::Node& param) {
     _param = param;
 }
 
-void Initialization::InitPosition(double* position) {
-    double r = _param->h / _param->kappa, x = 0, y = 0, z = 0,
+void Initialization::InitPosition(float* position) {
+    float r = _param["h"].as<float>() / _param["kappa"].as<float>(), x = 0, y = 0, z = 0,
         offsetX = r - 0.5 * r, offsetY = r - 0.5 * r, offsetZ = r - 0.5 * r;
     bool oddRow = true, oddLayer = true;
     RandomPool pool = RandomPool();
 
-    for (int i = 0; i < _param->N; i++) {
-        position[i * 3] = offsetX + x + pool.NextDouble(0.0, 0.00001);
-        position[i * 3 + 1] = offsetY + y + pool.NextDouble(0.0, 0.00001);
-        position[i * 3 + 2] = offsetZ + z + pool.NextDouble(0.0, 0.00001);
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
+        position[i * 3] = offsetX + x + pool.NextFloat(0.0, 0.00001);
+        position[i * 3 + 1] = offsetY + y + pool.NextFloat(0.0, 0.00001);
+        position[i * 3 + 2] = offsetZ + z + pool.NextFloat(0.0, 0.00001);
 
         x += r;
         if (offsetX + x > 1.0 - r * 0.25) {
@@ -36,32 +36,32 @@ void Initialization::InitPosition(double* position) {
     }
 }
 
-void Initialization::InitVelocity(double* velocity) {
+void Initialization::InitVelocity(float* velocity) {
     RandomPool pool = RandomPool();
 
-    for (int i = 0; i < _param->N; i++) {
-        velocity[i * 3] = pool.NextDouble(0.0, 0.001);
-        velocity[i * 3 + 1] = pool.NextDouble(0.0, 0.001);
-        velocity[i * 3 + 2] = pool.NextDouble(0.0, 0.001);
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
+        velocity[i * 3] = pool.NextFloat(0.0, 0.001);
+        velocity[i * 3 + 1] = pool.NextFloat(0.0, 0.001);
+        velocity[i * 3 + 2] = pool.NextFloat(0.0, 0.001);
     }
 }
 
-void Initialization::InitDensity(double* density) {
-    for (int i = 0; i < _param->N; i++) {
+void Initialization::InitDensity(float* density) {
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
         density[i] = 0.0;
     }
 }
 
-void Initialization::InitForce(double* force) {
-    for (int i = 0; i < _param->N; i++) {
+void Initialization::InitForce(float* force) {
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
         force[i * 3] = 0.0;
         force[i * 3 + 1] = 0.0;
         force[i * 3 + 2] = 0.0;
     }
 }
 
-void Initialization::InitPressure(double* pressure) {
-    for (int i = 0; i < _param->N; i++) {
+void Initialization::InitPressure(float* pressure) {
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
         pressure[i] = 0.0;
     }
 }

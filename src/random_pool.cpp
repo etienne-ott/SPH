@@ -11,10 +11,10 @@ RandomPool::RandomPool(long seed) {
     _generator = std::default_random_engine(seed);
 }
 
-double RandomPool::NextDouble() {
-    return (double)_generator() / _generator.max();
+float RandomPool::NextFloat() {
+    return (float)_generator() / _generator.max();
 }
 
-double RandomPool::NextDouble(double mean, double scale) {
-    return mean + scale * ((double)_generator() / _generator.max() - 0.5);
+float RandomPool::NextFloat(float mean, float scale) {
+    return mean + scale * ((float)_generator() / _generator.max() - 0.5);
 }

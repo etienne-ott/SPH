@@ -23,9 +23,9 @@ public:
     /// Writes the density out as a VTK file, interpolating the values on a
     /// regular grid.
     ///
-    /// @param density double* The density values of the particles
-    /// @param position double* The position values of the particles
-    void WriteDensity(double* density, double* position);
+    /// @param density float* The density values of the particles
+    /// @param position float* The position values of the particles
+    void WriteDensity(float* density, float* position);
 
 private:
     /// @var _path string The path where the files are saved
@@ -40,8 +40,8 @@ private:
     ///   values are interpolated.
     int _size;
 
-    /// @var _mass double The particle mass.
-    double _mass;
+    /// @var _mass float The particle mass.
+    float _mass;
 
     /// @var _kernel Kernel The kernel used for interpolation.
     const Kernel* _kernel;

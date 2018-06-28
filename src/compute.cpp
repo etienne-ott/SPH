@@ -1,25 +1,25 @@
 #include <cmath>
 #include <cstdio>
 #include "compute.hpp"
-#include "parameter.hpp"
 #include "initialization.hpp"
 
-Compute::Compute(Parameter* param, Kernel* kernel) {
+Compute::Compute(YAML::Node& param, Kernel* kernel) {
     _param = param;
     _kernel = kernel;
 
     _isFirstStep = true;
     _initPotNrg = 0.0;
+    int N = param["N"].as<int>();
 
-    _vec1 = new double[3];
-    _vec2 = new double[3];
-    _matr1 = new double[9];
-    _position = new double[3 * _param->N];
-    _velocity_halfs = new double[3 * _param->N];
-    _velocity = new double[3 * _param->N];
-    _force = new double[3 * _param->N];
-    _density = new double[_param->N];
-    _pressure = new double[_param->N];
+    _vec1 = new float[3];
+    _vec2 = new float[3];
+    _matr1 = new float[9];
+    _position = new float[3 * N];
+    _velocity_halfs = new float[3 * N];
+    _velocity = new float[3 * N];
+    _force = new float[3 * N];
+    _density = new float[N];
+    _pressure = new float[N];
 
     Initialization init = Initialization(_param);
     init.InitPosition(_position);
@@ -28,15 +28,14 @@ Compute::Compute(Parameter* param, Kernel* kernel) {
     init.InitForce(_force);
     init.InitDensity(_density);
 
-    double avg = this->CalculateDensity();
-    _param->NormalizeMass(_density, _param->N);
-    printf("After init:\nAverage density: %f\nNormalized mass: %f\n\n", avg, _param->mass);
+    float avg = this->CalculateDensity();
+    printf("After init:\nAverage density: %f\n", avg);
 
     // @todo Make height for potential energy dependant of domain
     // @todo Somehow approximate initial potential energy of pressure
     // and viscosity, depends on starting conditions
-    for (int i = 0; i < _param->N; i++) {
-        _initPotNrg += _param->g * _param->mass * _position[i * 3 + 2];
+    for (int i = 0; i < N; i++) {
+        _initPotNrg += param["g"].as<float>() * param["mass"].as<float>() * _position[i * 3 + 2];
     }
 }
 
@@ -52,14 +51,15 @@ Compute::~Compute() {
     delete[] _matr1;
 }
 
-double Compute::CalculateDensity() {
-    double avgsum = 0.0;
+float Compute::CalculateDensity() {
+    int N = _param["N"].as<int>();
+    float avgsum = 0.0, rho0 = _param["rho0"].as<float>();
 
-    for (int i = 0; i < _param->N; i++) {
-        double sum = 0.0;
-        double distance = 0.0;
+    for (int i = 0; i < N; i++) {
+        float sum = 0.0;
+        float distance = 0.0;
 
-        for (int j = 0; j < _param->N; j++) {
+        for (int j = 0; j < N; j++) {
             distance = pow(
                 (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
                     + (_position[i * 3 + 1] - _position[j * 3 + 1]) * (_position[i * 3 + 1] - _position[j * 3 + 1])
@@ -69,19 +69,18 @@ double Compute::CalculateDensity() {
             sum += _kernel->ValueOf(distance);
         }
 
-        _density[i] = sum * _param->rho0;
-        avgsum += sum * _param->rho0;
+        _density[i] = sum * rho0;
+        avgsum += sum * rho0;
     }
 
-    return avgsum / _param->N;
+    return avgsum / N;
 }
 
 void Compute::Timestep() {
     // Calculate density and update smoothing length. h should be set to
     // avg^(-1/d), where avg is the average density of the fluid and d is the
     // number of dimensions.
-    double h = pow(this->CalculateDensity(), -1.0 / 3.0);
-    _param->h = h;
+    float h = pow(this->CalculateDensity(), -1.0 / 3.0);
     _kernel->SetH(h);
     printf("New h: %f; ", h);
 
@@ -96,43 +95,52 @@ void Compute::Timestep() {
 }
 
 void Compute::CalculatePressure() {
-    for (int i = 0; i < _param->N; i++) {
-        _pressure[i] = _param->k * _param->rho0
-            * (pow(_density[i] / _param->rho0, _param->gamma) - 1)
-            / _param->gamma;
+    float rho0 = _param["rho0"].as<float>(),
+        k = _param["k"].as<float>(),
+        gamma = _param["gamma"].as<float>();
+
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
+        _pressure[i] = k * rho0
+            * (pow(_density[i] / rho0, gamma) - 1)
+            / gamma;
     }
 }
 
 void Compute::CalculateForces() {
-    double distance = 0.0;
-    double tmp = 0.0;
-    double dvx = 0.0, dvy = 0.0, dvz = 0.0;
-    double kinNrg = 0.0;
+    float distance = 0.0;
+    float tmp = 0.0;
+    float dvx = 0.0, dvy = 0.0, dvz = 0.0;
+    float kinNrg = 0.0;
+    float mass = _param["mass"].as<float>();
+    float g = _param["g"].as<float>();
+    float epsilon = _param["epsilon"].as<float>();
+    float h = _param["h"].as<float>();
+    float mu = _param["mu"].as<float>();
 
-    for (int i = 0; i < _param->N; i++) {
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
         _force[i * 3] = 0.0;
         _force[i * 3 + 1] = 0.0;
         _force[i * 3 + 2] = 0.0;
 
-        kinNrg += 0.5 * _param->mass * (_velocity[i * 3] * _velocity[i * 3]
+        kinNrg += 0.5 * mass * (_velocity[i * 3] * _velocity[i * 3]
             + _velocity[i * 3 + 1] * _velocity[i * 3 + 1]
             + _velocity[i * 3 + 2] * _velocity[i * 3 + 2]);
 
         // 1-body forces, currently only gravity
-        _force[i * 3 + 2] += _param->mass * _param->FSGravity * _param->g;
+        _force[i * 3 + 2] += mass * g;
 
         // 2-body forces
         // @todo Use symmetry to reduce number of calculations by a factor of 2
-        double* pressureForce = new double[3];
+        float* pressureForce = new float[3];
         pressureForce[0] = 0.0;
         pressureForce[1] = 0.0;
         pressureForce[2] = 0.0;
-        double* viscosityForce = new double[3];
+        float* viscosityForce = new float[3];
         viscosityForce[0] = 0.0;
         viscosityForce[1] = 0.0;
         viscosityForce[2] = 0.0;
 
-        for (int j = 0; j < _param->N; j++) {
+        for (int j = 0; j < _param["N"].as<int>(); j++) {
             if (j == i) {
                 continue;
             }
@@ -145,11 +153,10 @@ void Compute::CalculateForces() {
 
             // Pressure force
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
-            tmp = _param->FSPressure
-                * (
-                    _pressure[i] / (_density[i] * _density[i])
-                    + _pressure[j] / (_density[j] * _density[j])
-                );
+            tmp = (
+                _pressure[i] / (_density[i] * _density[i])
+                + _pressure[j] / (_density[j] * _density[j])
+            );
 
             pressureForce[0] += tmp * _vec2[0];
             pressureForce[1] += tmp * _vec2[1];
@@ -160,8 +167,8 @@ void Compute::CalculateForces() {
             dvx = _velocity[j * 3] - _velocity[i * 3];
             dvy = _velocity[j * 3 + 1] - _velocity[i * 3 + 1];
             dvz = _velocity[j * 3 + 2] - _velocity[i * 3 + 2];
-            tmp = _param->FSViscosity * (dvx * _vec1[0] + dvy * _vec1[1] + dvz * _vec1[2])
-                / (distance * distance + _param->epsilon * _param->h * _param->h);
+            tmp = (dvx * _vec1[0] + dvy * _vec1[1] + dvz * _vec1[2])
+                / (distance * distance + epsilon * h * h);
 
             viscosityForce[0] += tmp * _vec1[0] * _matr1[0] / distance
                 + tmp * _vec1[1] * _matr1[1] / distance
@@ -180,9 +187,9 @@ void Compute::CalculateForces() {
         _force[i * 3 + 1] -= _density[i] * pressureForce[1];
         _force[i * 3 + 2] -= _density[i] * pressureForce[2];
 
-        _force[i * 3] += _param->mu * viscosityForce[0];
-        _force[i * 3 + 1] += _param->mu * viscosityForce[1];
-        _force[i * 3 + 2] += _param->mu * viscosityForce[2];
+        _force[i * 3] += mu * viscosityForce[0];
+        _force[i * 3 + 1] += mu * viscosityForce[1];
+        _force[i * 3 + 2] += mu * viscosityForce[2];
 
         delete pressureForce;
         delete viscosityForce;
@@ -193,21 +200,21 @@ void Compute::CalculateForces() {
 
 void Compute::VelocityIntegration(bool firstStep) {
     if (firstStep) {
-        for (int i = 0; i < _param->N; i++) {
-            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 * _param->dt * _force[i * 3] / _density[i];
-            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 * _param->dt * _force[i * 3 + 1] / _density[i];
-            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 * _param->dt * _force[i * 3 + 2] / _density[i];
+        for (int i = 0; i < _param["N"].as<int>(); i++) {
+            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 * _param["dt"].as<float>() * _force[i * 3] / _density[i];
+            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 * _param["dt"].as<float>() * _force[i * 3 + 1] / _density[i];
+            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 * _param["dt"].as<float>() * _force[i * 3 + 2] / _density[i];
         }
         return;
     }
 
-    for (int i = 0; i < _param->N; i++) {
-        _velocity_halfs[i * 3] += _param->dt * _force[i * 3] / _density[i];
-        _velocity_halfs[i * 3 + 1] += _param->dt * _force[i * 3 + 1] / _density[i];
-        _velocity_halfs[i * 3 + 2] += _param->dt * _force[i * 3 + 2] / _density[i];
-        _velocity[i * 3] = _velocity_halfs[i * 3] + 0.5 * _param->dt * _force[i * 3] / _density[i];
-        _velocity[i * 3 + 1] = _velocity_halfs[i * 3 + 1] + 0.5 * _param->dt * _force[i * 3 + 1] / _density[i];
-        _velocity[i * 3 + 2] = _velocity_halfs[i * 3 + 2] + 0.5 * _param->dt * _force[i * 3 + 2] / _density[i];
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
+        _velocity_halfs[i * 3] += _param["dt"].as<float>() * _force[i * 3] / _density[i];
+        _velocity_halfs[i * 3 + 1] += _param["dt"].as<float>() * _force[i * 3 + 1] / _density[i];
+        _velocity_halfs[i * 3 + 2] += _param["dt"].as<float>() * _force[i * 3 + 2] / _density[i];
+        _velocity[i * 3] = _velocity_halfs[i * 3] + 0.5 * _param["dt"].as<float>() * _force[i * 3] / _density[i];
+        _velocity[i * 3 + 1] = _velocity_halfs[i * 3 + 1] + 0.5 * _param["dt"].as<float>() * _force[i * 3 + 1] / _density[i];
+        _velocity[i * 3 + 2] = _velocity_halfs[i * 3 + 2] + 0.5 * _param["dt"].as<float>() * _force[i * 3 + 2] / _density[i];
     }
 }
 
@@ -225,12 +232,12 @@ void Compute::PositionIntegration() {
     // direction
     // @todo in fact, the reflection is too crude, since the kernel seemingly
     // extends into the wall, but should be "squished" against it
-    double newval = 0.0;
-    for (int i = 0; i < _param->N; i++) {
+    float newval = 0.0;
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
         bool damp = false;
 
         // Reflection of x component
-        newval = _position[i * 3] + _velocity_halfs[i * 3] * _param->dt;
+        newval = _position[i * 3] + _velocity_halfs[i * 3] * _param["dt"].as<float>();
         if (newval < 0.0) {
             damp = true;
             _position[i * 3] = -newval;
@@ -244,7 +251,7 @@ void Compute::PositionIntegration() {
         }
 
         // Reflection of y component
-        newval = _position[i * 3 + 1] + _velocity_halfs[i * 3 + 1] * _param->dt;
+        newval = _position[i * 3 + 1] + _velocity_halfs[i * 3 + 1] * _param["dt"].as<float>();
         if (newval < 0.0) {
             damp = true;
             _position[i * 3 + 1] = -newval;
@@ -258,7 +265,7 @@ void Compute::PositionIntegration() {
         }
 
         // Reflection of z component
-        newval = _position[i * 3 + 2] + _velocity_halfs[i * 3 + 2] * _param->dt;
+        newval = _position[i * 3 + 2] + _velocity_halfs[i * 3 + 2] * _param["dt"].as<float>();
         if (newval < 0.0) {
             damp = true;
             _position[i * 3 + 2] = -newval;
@@ -269,17 +276,17 @@ void Compute::PositionIntegration() {
 
         // Dampening
         if (damp) {
-            _velocity_halfs[i * 3] *= _param->dampening;
-            _velocity_halfs[i * 3 + 1] *= _param->dampening;
-            _velocity_halfs[i * 3 + 2] *= _param->dampening;
+            _velocity_halfs[i * 3] *= _param["dampening"].as<float>();
+            _velocity_halfs[i * 3 + 1] *= _param["dampening"].as<float>();
+            _velocity_halfs[i * 3 + 2] *= _param["dampening"].as<float>();
         }
     }
 }
 
-double* Compute::GetPosition() {
+float* Compute::GetPosition() {
     return _position;
 }
 
-double* Compute::GetDensity() {
+float* Compute::GetDensity() {
     return _density;
 }

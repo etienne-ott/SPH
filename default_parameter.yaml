@@ -1,0 +1,39 @@
+### This is the example (and default) parameter file. Parameters are defined in
+### a simple "name : value" syntax. The pound sign is used for comments
+
+
+## Problem size parameters
+
+N: 400 # number of particles
+h: 0.1523 # initial smoothing length
+mass: 2.5 # mass of particle
+
+
+## initialization parameters
+
+rho0: 1000.0 # rest density
+kappa: 1.0 # overlap of particles (larger means closer together) relative
+    # to the kernel smoothing length
+
+
+## Time parameters
+
+tend: 1.0 # Time at which the simulation ends
+dt: 0.05 # Time step interval
+
+
+## Force parameters
+
+k: 1000.0 # gas (spring) constant of pressure
+gamma: 7.0 # elasticity order of pressure
+g: -9.81 # local gravity acceleration
+mu: 0.1 # viscosity parameters
+epsilon : 0.0001 # parameter to avoid division by zero
+dampening: 0.8 # dampening factor on reflection against wall
+
+
+## Debug view parameters
+
+Rix: 400 # Inner width
+Riy: 600 # Inner height
+Ro: 50 # Border width

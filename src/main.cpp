@@ -4,7 +4,7 @@
 #include "vtk.hpp"
 #include "ascii_output.hpp"
 #include "compute.hpp"
-#include "parameter.hpp"
+#include <yaml-cpp/yaml.h>
 
 #define WRITE_VTK_OUTPUT false
 #define WRITE_ASCII_OUTPUT false
@@ -24,25 +24,24 @@ bool checkQuitSDLEvent(SDL_Event* event) {
 }
 
 int main() {
-    Parameter param = Parameter();
-    param.Load("sample.param");
+    YAML::Node param = YAML::LoadFile("default_parameter.yaml");
 
     Renderer r = Renderer();
-    r.Init(param.Rix, param.Riy, param.Ro);
+    r.Init(param["Rix"].as<int>(), param["Riy"].as<int>(), param["Ro"].as<int>());
 
-    Gaussian kernel = Gaussian(param.h, param.N, param.mass);
-    Compute compute = Compute(&param, &kernel);
+    Gaussian kernel = Gaussian(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
+    Compute compute = Compute(param, &kernel);
 
     VTK vtk = VTK("output/vtk/", &kernel, 20);
     ASCIIOutput ascii = ASCIIOutput("output/ascii/");
 
     bool running = true;
     SDL_Event event;
-    double t = 0.0;
+    float t = 0.0;
 
-    r.DebugViewPositions(compute.GetPosition(), param.N, t);
+    r.DebugViewPositions(compute.GetPosition(), param["N"].as<int>(), t);
 
-    while (t < param.tend && running) {
+    while (t < param["tend"].as<float>() && running) {
         compute.Timestep();
 
         if (WRITE_VTK_OUTPUT) {
@@ -50,13 +49,13 @@ int main() {
         }
 
         if (WRITE_ASCII_OUTPUT) {
-            ascii.WriteParticleStatus(compute.GetDensity(), compute.GetPosition(), &param);
+            ascii.WriteParticleStatus(compute.GetDensity(), compute.GetPosition(), param);
         }
 
-        r.DebugViewPositions(compute.GetPosition(), param.N, t);
+        r.DebugViewPositions(compute.GetPosition(), param["N"].as<int>(), t);
         running = !checkQuitSDLEvent(&event);
 
-        t += param.dt;
+        t += param["dt"].as<float>();
     }
 
     while (running) {

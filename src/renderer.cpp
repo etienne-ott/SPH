@@ -55,7 +55,7 @@ int Renderer::Render() {
     return 1;
 }
 
-void Renderer::DebugViewPositions(double* position, int N, double time) {
+void Renderer::DebugViewPositions(float* position, int N, float time) {
     // Clear
     for (int i = 0; i < _width + 2 * _border; i++) {
         for (int j = 0; j < _height + 2 * _border; j++) {
@@ -91,12 +91,12 @@ void Renderer::DebugViewPositions(double* position, int N, double time) {
     this->Render();
 }
 
-void Renderer::DebugViewSurface(double* density, double* position, Kernel* kernel) {
-    double dx = 1.0 / _width, dz = 1.0 / _height;
+void Renderer::DebugViewSurface(float* density, float* position, Kernel* kernel) {
+    float dx = 1.0 / _width, dz = 1.0 / _height;
 
     for (int i = 0; i < _width; i++) {
         for (int j = 0; j < _height; j++) {
-            double d = kernel->InterpolateDensity(i * dx, 0.5, j * dz, density, position);
+            float d = kernel->InterpolateDensity(i * dx, 0.5, j * dz, density, position);
             if (d > 0.5) {
                 this->SetPixelRGB(i, j, 0, 0, 0);
             } else {

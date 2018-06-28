@@ -37,18 +37,18 @@ public:
     /// corresponding to the viewport and the size of the square corresponding
     /// to the z position.
     ///
-    /// @param position double* The particle positions
+    /// @param position float* The particle positions
     /// @param N int The number of particles
-    /// @param time double The current simulation time
-    void DebugViewPositions(double* position, int N, double time);
+    /// @param time float The current simulation time
+    void DebugViewPositions(float* position, int N, float time);
 
     /// Renders the density of the fluid in a debug view. The density is
     /// interpolated along the (x, 0.5, z) plane, where x and z go from 0 to 1.
     ///
-    /// @param density double* The density of the particles
-    /// @param position double* The position of the particles
+    /// @param density float* The density of the particles
+    /// @param position float* The position of the particles
     /// @param kernel Kernel* The kernel to use for interpolation
-    void DebugViewSurface(double* density, double* position, Kernel* kernel);
+    void DebugViewSurface(float* density, float* position, Kernel* kernel);
 
 private:
     /// @var _width int The width of the viewport.

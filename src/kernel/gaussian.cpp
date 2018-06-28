@@ -2,12 +2,12 @@
 #include "gaussian.hpp"
 #include <cmath>
 
-Gaussian::Gaussian(double h, int N, double mass) : Kernel(h, N, mass) {
+Gaussian::Gaussian(float h, int N, float mass) : Kernel(h, N, mass) {
 
 }
 
-double Gaussian::ValueOf(double r) const {
-    double q = r / _h;
+float Gaussian::ValueOf(float r) const {
+    float q = r / _h;
 
     if (q > 1.0) {
         return 0.0;
@@ -16,15 +16,15 @@ double Gaussian::ValueOf(double r) const {
     }
 }
 
-void Gaussian::FOD(double rx, double ry, double rz, double r, double* ret) {
-    double q = r / _h;
+void Gaussian::FOD(float rx, float ry, float rz, float r, float* ret) {
+    float q = r / _h;
 
     if (q > 1.0) {
         ret[0] = 0;
         ret[1] = 0;
         ret[2] = 0;
     } else {
-        double tmp = -8.0 * _fac1 * exp(-4.0 * q * q) / (_h * _h);
+        float tmp = -8.0 * _fac1 * exp(-4.0 * q * q) / (_h * _h);
 
         ret[0] = tmp * rx;
         ret[1] = tmp * ry;
@@ -32,14 +32,14 @@ void Gaussian::FOD(double rx, double ry, double rz, double r, double* ret) {
     }
 }
 
-void Gaussian::SOD(double rx, double ry, double rz, double r, double* ret) {
-    double q = r / _h;
+void Gaussian::SOD(float rx, float ry, float rz, float r, float* ret) {
+    float q = r / _h;
     if (q > 1.0) {
         for (int i = 0; i < 9; i++) {
             ret[i] = 0.0;
         }
     } else {
-        double tmp = 64 * _fac1 * exp(-4.0 * q * q) / (_h * _h * _h * _h);
+        float tmp = 64 * _fac1 * exp(-4.0 * q * q) / (_h * _h * _h * _h);
 
         ret[0] = -8.0 * _fac1 * (exp(-4.0 * q * q) * (1.0 - rx) + rx / _fac1) / (_h * _h);
         ret[1] = tmp * rx * ry;

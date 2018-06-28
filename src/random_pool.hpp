@@ -12,19 +12,19 @@ public:
     /// Constructor. Initializes the random pool with the given seed.
     RandomPool(long seed);
 
-    /// Returns a randomly selected double value between 0.0 and 1.0
+    /// Returns a randomly selected float value between 0.0 and 1.0
     ///
-    /// @return double A random double between 0.0 and 1.0
-    double NextDouble();
+    /// @return float A random float between 0.0 and 1.0
+    float NextFloat();
 
-    /// Returns a randomly selected double value between
+    /// Returns a randomly selected float value between
     /// (mean - 0.5 * scale) and (mean + 0.5 * scale).
     ///
-    /// @param mean double The mean value of the distribution
-    /// @param scale double The spread of the distribution
-    /// @return double A random double in a range determined by the mean and
+    /// @param mean float The mean value of the distribution
+    /// @param scale float The spread of the distribution
+    /// @return float A random float in a range determined by the mean and
     ///     scale parameters.
-    double NextDouble(double mean, double scale);
+    float NextFloat(float mean, float scale);
 
 private:
     /// @var _seed long The seed used by the random number generator.

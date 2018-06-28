@@ -2,12 +2,12 @@
 #include "bidomain.hpp"
 #include <cmath>
 
-Bidomain::Bidomain(double h, int N, double mass) : Kernel(h, N, mass) {
+Bidomain::Bidomain(float h, int N, float mass) : Kernel(h, N, mass) {
 
 }
 
-double Bidomain::ValueOf(double r) const {
-    double v = r / _h;
+float Bidomain::ValueOf(float r) const {
+    float v = r / _h;
     if (v >= 0.0 && v < 1.0) {
         v = (4.0 - 6.0 * r * r + 3.0 * r * r * r);
     } else if (v >= 1.0 && v < 2.0) {
@@ -18,8 +18,8 @@ double Bidomain::ValueOf(double r) const {
     return v * _fac1;
 }
 
-void Bidomain::FOD(double rx, double ry, double rz, double r, double* ret) {
-    double v = r / _h;
+void Bidomain::FOD(float rx, float ry, float rz, float r, float* ret) {
+    float v = r / _h;
 
     if (v >= 0.0 && v < 1.0) {
         ret[0] = -12.0 * rx  + 9.0 * rx * r;
@@ -41,8 +41,8 @@ void Bidomain::FOD(double rx, double ry, double rz, double r, double* ret) {
     ret[2] *= _fac1;
 }
 
-void Bidomain::SOD(double rx, double ry, double rz, double r, double* ret) {
-    double v = r / _h, ir = 1.0 / r;
+void Bidomain::SOD(float rx, float ry, float rz, float r, float* ret) {
+    float v = r / _h, ir = 1.0 / r;
 
     if (v >= 0.0 && v < 1.0) {
         ret[0] = -12 + 9 * r + 9 * rx * rx * ir;

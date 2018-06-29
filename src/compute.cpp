@@ -86,9 +86,7 @@ void Compute::CalculatePressure() {
         gamma = _param["gamma"].as<float>();
 
     for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _pressure[i] = k * rho0
-            * (pow(_density[i] / rho0, gamma) - 1)
-            / gamma;
+        _pressure[i] = k * (pow(_density[i] / rho0, gamma) - 1.f);
     }
 }
 
@@ -139,10 +137,8 @@ void Compute::CalculateForces() {
 
             // Pressure force
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
-            tmp = (
-                _pressure[i] / (_density[i] * _density[i])
-                + _pressure[j] / (_density[j] * _density[j])
-            );
+            tmp = mass * (_pressure[i] / (_density[i] * _density[i])
+                + _pressure[j] / (_pressure[j] * _pressure[j]));
 
             pressureForce[0] += tmp * _vec2[0];
             pressureForce[1] += tmp * _vec2[1];
@@ -169,9 +165,9 @@ void Compute::CalculateForces() {
                 + tmp * _vec1[2] * _matr1[8] / distance;
         }
 
-        _force[i * 3] -= _density[i] * pressureForce[0];
-        _force[i * 3 + 1] -= _density[i] * pressureForce[1];
-        _force[i * 3 + 2] -= _density[i] * pressureForce[2];
+        _force[i * 3] -= mass * pressureForce[0];
+        _force[i * 3 + 1] += mass * pressureForce[1];
+        _force[i * 3 + 2] += mass * pressureForce[2];
 
         _force[i * 3] += mu * viscosityForce[0];
         _force[i * 3 + 1] += mu * viscosityForce[1];

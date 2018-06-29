@@ -47,8 +47,9 @@ void Initialization::InitVelocity(float* velocity) {
 }
 
 void Initialization::InitDensity(float* density) {
+    float rho0 = _param["rho0"].as<float>();
     for (int i = 0; i < _param["N"].as<int>(); i++) {
-        density[i] = 0.0;
+        density[i] = rho0;
     }
 }
 

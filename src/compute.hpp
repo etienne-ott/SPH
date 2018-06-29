@@ -21,7 +21,7 @@ public:
     /// the fluid.
     ///
     /// @return float The average density of the fluid
-    float CalculateDensity();
+    void CalculateDensity();
 
     /// Calculates the pressure at the particle positions.
     void CalculatePressure();

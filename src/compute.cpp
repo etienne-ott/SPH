@@ -28,9 +28,6 @@ Compute::Compute(YAML::Node& param, Kernel* kernel) {
     init.InitForce(_force);
     init.InitDensity(_density);
 
-    float avg = this->CalculateDensity();
-    printf("After init:\nAverage density: %f\n", avg);
-
     // @todo Make height for potential energy dependant of domain
     // @todo Somehow approximate initial potential energy of pressure
     // and viscosity, depends on starting conditions
@@ -50,10 +47,9 @@ Compute::~Compute() {
     delete[] _vec2;
     delete[] _matr1;
 }
-
-float Compute::CalculateDensity() {
+void Compute::CalculateDensity() {
     int N = _param["N"].as<int>();
-    float avgsum = 0.0, rho0 = _param["rho0"].as<float>();
+    float mass = _param["mass"].as<float>();
 
     for (int i = 0; i < N; i++) {
         float sum = 0.0;
@@ -66,14 +62,11 @@ float Compute::CalculateDensity() {
                     + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
                 0.5
             );
-            sum += _kernel->ValueOf(distance);
+            sum += mass * _kernel->ValueOf(distance);
         }
 
-        _density[i] = sum * rho0;
-        avgsum += sum * rho0;
+        _density[i] = sum;
     }
-
-    return avgsum / N;
 }
 
 void Compute::Timestep() {

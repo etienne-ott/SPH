@@ -2,5 +2,8 @@
 build/
 include/
 
+# ide files
+.vscode
+
 # output folder (specific files will be added to a commit manually)
 output/

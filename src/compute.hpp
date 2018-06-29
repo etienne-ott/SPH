@@ -59,6 +59,11 @@ public:
     /// @return float* The particle densities
     float* GetDensity();
 
+    /// Returns the particle pressure as consecutive values for each particle.
+    /// 
+    /// @return float* The particle pressure
+    float* GetPressure();
+
 private:
     /// @var _param YAML::Node The parameter object containing the values
     /// of all necessary parameters.
@@ -70,10 +75,6 @@ private:
     /// @var _isFirstStep bool Flag to indicate if we are doing the first time
     ///     step, which requires special handling.
     bool _isFirstStep;
-
-    /// @var _initPotNrg float Holds the initial potential energy of the system,
-    /// or at least an approximation
-    float _initPotNrg;
 
     /// @var _vec1 float* A temporary 3D vector used in calculations.
     float* _vec1;

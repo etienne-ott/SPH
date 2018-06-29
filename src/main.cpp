@@ -6,9 +6,6 @@
 #include "compute.hpp"
 #include <yaml-cpp/yaml.h>
 
-#define WRITE_VTK_OUTPUT false
-#define WRITE_ASCII_OUTPUT false
-
 /// Checks if there has been a SDL_QUIT event since the last time SDL events
 /// were checked.
 ///
@@ -44,12 +41,17 @@ int main() {
     while (t < param["tend"].as<float>() && running) {
         compute.Timestep();
 
-        if (WRITE_VTK_OUTPUT) {
+        if (param["write_vtk"].as<bool>()) {
             vtk.WriteDensity(compute.GetDensity(), compute.GetPosition());
         }
 
-        if (WRITE_ASCII_OUTPUT) {
-            ascii.WriteParticleStatus(compute.GetDensity(), compute.GetPosition(), param);
+        if (param["write_ascii"].as<bool>()) {
+            ascii.WriteParticleStatus(
+                compute.GetDensity(),
+                compute.GetPosition(),
+                compute.GetPressure(),
+                param
+            );
         }
 
         r.DebugViewPositions(compute.GetPosition(), param["N"].as<int>(), t);

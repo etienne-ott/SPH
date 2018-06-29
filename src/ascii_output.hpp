@@ -20,9 +20,10 @@ public:
     ///
     /// @param density float* The particle densities
     /// @param position float* The particle positions
+    /// @param pressure float* The particle pressures
     /// @param param YAML::Node& The parameter object holding the simulation
     ///   parameters.
-    void WriteParticleStatus(float* density, float* position, YAML::Node& param);
+    void WriteParticleStatus(float* density, float* position, float* pressure, YAML::Node& param);
 
 private:
     /// @var _path string The path where the data files will be stored.

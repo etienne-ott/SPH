@@ -8,7 +8,6 @@ Compute::Compute(YAML::Node& param, Kernel* kernel) {
     _kernel = kernel;
 
     _isFirstStep = true;
-    _initPotNrg = 0.0;
     int N = param["N"].as<int>();
 
     _vec1 = new float[3];
@@ -27,13 +26,6 @@ Compute::Compute(YAML::Node& param, Kernel* kernel) {
     init.InitPressure(_pressure);
     init.InitForce(_force);
     init.InitDensity(_density);
-
-    // @todo Make height for potential energy dependant of domain
-    // @todo Somehow approximate initial potential energy of pressure
-    // and viscosity, depends on starting conditions
-    for (int i = 0; i < N; i++) {
-        _initPotNrg += param["g"].as<float>() * param["mass"].as<float>() * _position[i * 3 + 2];
-    }
 }
 
 Compute::~Compute() {
@@ -170,7 +162,7 @@ void Compute::CalculateForces() {
         delete viscosityForce;
     }
 
-    printf("Kinetic energy: %f; Potential energy (apprx): %f; ", kinNrg, _initPotNrg - kinNrg);
+    printf("Kinetic energy: %f;", kinNrg);
 }
 
 void Compute::VelocityIntegration(bool firstStep) {
@@ -264,4 +256,8 @@ float* Compute::GetPosition() {
 
 float* Compute::GetDensity() {
     return _density;
+}
+
+float* Compute::GetPressure() {
+    return _pressure;
 }

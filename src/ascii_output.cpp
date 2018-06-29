@@ -8,24 +8,23 @@ ASCIIOutput::ASCIIOutput(string path) {
     _count = 1;
 }
 
-void ASCIIOutput::WriteParticleStatus(float* density, float* position, YAML::Node& param) {
+void ASCIIOutput::WriteParticleStatus(float* density, float* position, float* pressure, YAML::Node& param) {
     char* filename = new char[255];
     sprintf(filename, "%sfield_%i.dat", _path.c_str(), _count);
     FILE* handle = fopen(filename, "w");
     delete filename;
 
-    fprintf(handle, "x\ty\tz\tdensity\tsmoothing length\tmass\n");
+    fprintf(handle, "x\ty\tz\tdensity\tpressure\n");
 
     for (int i = 0; i < param["N"].as<int>(); i++) {
         fprintf(
             handle,
-            "%f\t%f\t%f\t%f\t%f\t%f\n",
+            "%f\t%f\t%f\t%f\t%f\n",
             position[i * 3],
             position[i * 3 + 1],
             position[i * 3 + 2],
             density[i],
-            param["h"].as<float>(),
-            param["mass"].as<float>()
+            pressure[i]
         );
     }
     fclose(handle);

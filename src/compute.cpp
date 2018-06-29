@@ -145,33 +145,26 @@ void Compute::CalculateForces() {
             pressureForce[2] += tmp * _vec2[2];
 
             // Viscosity force
-            _kernel->SOD(_vec1[0], _vec1[1], _vec1[2], distance, _matr1);
-            dvx = _velocity[j * 3] - _velocity[i * 3];
-            dvy = _velocity[j * 3 + 1] - _velocity[i * 3 + 1];
-            dvz = _velocity[j * 3 + 2] - _velocity[i * 3 + 2];
-            tmp = (dvx * _vec1[0] + dvy * _vec1[1] + dvz * _vec1[2])
-                / (distance * distance + epsilon * h * h);
+            dvx = _velocity[i * 3] - _velocity[j * 3];
+            dvy = _velocity[i * 3 + 1] - _velocity[j * 3 + 1];
+            dvz = _velocity[i * 3 + 2] - _velocity[j * 3 + 2];
+            tmp = mass / _density[j] / (
+                _vec2[0] * _vec2[0] + _vec2[1] * _vec2[1] + _vec2[2] * _vec2[2]
+                + epsilon * h * h
+            );
 
-            viscosityForce[0] += tmp * _vec1[0] * _matr1[0] / distance
-                + tmp * _vec1[1] * _matr1[1] / distance
-                + tmp * _vec1[2] * _matr1[2] / distance;
-
-            viscosityForce[1] += tmp * _vec1[0] * _matr1[3] / distance
-                + tmp * _vec1[1] * _matr1[4] / distance
-                + tmp * _vec1[2] * _matr1[5] / distance;
-
-            viscosityForce[2] += tmp * _vec1[0] * _matr1[6] / distance
-                + tmp * _vec1[1] * _matr1[7] / distance
-                + tmp * _vec1[2] * _matr1[8] / distance;
+            viscosityForce[0] += tmp * dvx * (_vec1[0] * _vec2[0]);
+            viscosityForce[1] += tmp * dvy * (_vec1[1] * _vec2[1]);
+            viscosityForce[2] += tmp * dvz * (_vec1[2] * _vec2[2]);
         }
 
         _force[i * 3] -= mass * pressureForce[0];
         _force[i * 3 + 1] += mass * pressureForce[1];
         _force[i * 3 + 2] += mass * pressureForce[2];
 
-        _force[i * 3] += mu * viscosityForce[0];
-        _force[i * 3 + 1] += mu * viscosityForce[1];
-        _force[i * 3 + 2] += mu * viscosityForce[2];
+        _force[i * 3] += mass * mu * 2.f * viscosityForce[0];
+        _force[i * 3 + 1] += mass * mu * 2.f * viscosityForce[1];
+        _force[i * 3 + 2] += mass * mu * 2.f * viscosityForce[2];
 
         delete pressureForce;
         delete viscosityForce;

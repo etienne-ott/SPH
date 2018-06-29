@@ -77,14 +77,7 @@ float Compute::CalculateDensity() {
 }
 
 void Compute::Timestep() {
-    // Calculate density and update smoothing length. h should be set to
-    // avg^(-1/d), where avg is the average density of the fluid and d is the
-    // number of dimensions.
-    float h = pow(this->CalculateDensity(), -1.0 / 3.0);
-    _kernel->SetH(h);
-    printf("New h: %f; ", h);
-
-
+    this->CalculateDensity();
     this->CalculatePressure();
     this->CalculateForces();
     this->VelocityIntegration(_isFirstStep);

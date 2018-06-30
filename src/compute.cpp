@@ -4,11 +4,13 @@
 #include "initialization.hpp"
 
 Compute::Compute(YAML::Node& param, Kernel* kernel) {
-    _param = param;
-    _kernel = kernel;
-
     _isFirstStep = true;
     int N = param["N"].as<int>();
+    float h = param["h"].as<float>();
+
+    _param = param;
+    _kernel = kernel;
+    _neighbors = new Neighbors(h, N);
 
     _vec1 = new float[3];
     _vec2 = new float[3];
@@ -38,6 +40,7 @@ Compute::~Compute() {
     delete[] _vec1;
     delete[] _vec2;
     delete[] _matr1;
+    delete _neighbors;
 }
 void Compute::CalculateDensity() {
     int N = _param["N"].as<int>();
@@ -93,6 +96,8 @@ void Compute::CalculateForces() {
     float h = _param["h"].as<float>();
     float mu = _param["mu"].as<float>();
 
+    _neighbors->sortParticlesIntoGrid(_position);
+
     for (int i = 0; i < _param["N"].as<int>(); i++) {
         _force[i * 3] = 0.0;
         _force[i * 3 + 1] = 0.0;
@@ -116,7 +121,11 @@ void Compute::CalculateForces() {
         viscosityForce[1] = 0.0;
         viscosityForce[2] = 0.0;
 
-        for (int j = 0; j < _param["N"].as<int>(); j++) {
+        std::vector<int> candidates = _neighbors->getNeighbors(i);
+
+        for (int k = 0; k < candidates.size(); k++) {
+            int j = candidates.at(k);
+
             if (j == i) {
                 continue;
             }
@@ -190,11 +199,10 @@ void Compute::VelocityIntegration(bool firstStep) {
 
 void Compute::PositionIntegration() {
     // Do _position integration (leap frog) with collision detection
-    // against the standard rectangle spanned by (0,0,0)x(1,1,1), that is
-    // open on the upper side (z > 1) and extended infinitely.
+    // against the standard cube spanned by (0,0,0)x(1,1,1).
     // On collision we reflect the respective component and rescale the
     // velocity so the new absolute velocity is the old one multiplied
-    // with a dampening factor.
+    // with a dampening factor, except for the upper z-bound.
     // @todo We do the reflection with the old velocity, but the path after
     // the reflection should be traversed with the dampened velocity
     // @todo The dampening is uniform now, but should actually dampen the
@@ -240,6 +248,8 @@ void Compute::PositionIntegration() {
             damp = true;
             _position[i * 3 + 2] = -newval;
             _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
+        } else if (newval > 1.0) {
+            _position[i * 3 + 2] = 1.f;
         } else {
             _position[i * 3 + 2] = newval;
         }

@@ -9,6 +9,7 @@ set(SOURCES
     "src/compute.cpp"
     "src/initialization.cpp"
     "src/main.cpp"
+    "src/neighbors.cpp"
     "src/random_pool.cpp"
     "src/renderer.cpp"
     "src/vtk.cpp"

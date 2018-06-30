@@ -1,4 +1,5 @@
 #include "kernel/kernel.hpp"
+#include "neighbors.hpp"
 #include <yaml-cpp/yaml.h>
 
 #ifndef __COMPUTE_HPP
@@ -71,6 +72,9 @@ private:
 
     /// @var _kernel Kernel* The kernel to use for calculations.
     Kernel* _kernel;
+
+    /// @var _neighbors Neighbors* A class used to get the neighbors of a particle
+    Neighbors* _neighbors;
 
     /// @var _isFirstStep bool Flag to indicate if we are doing the first time
     ///     step, which requires special handling.

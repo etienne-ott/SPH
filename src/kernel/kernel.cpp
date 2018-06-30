@@ -5,7 +5,7 @@ Kernel::Kernel(float h, int N, float mass) {
     _h = h;
     _N = N;
     _mass = mass;
-    _fac1 = 1.0 / (4.0 * h * h * h * N);
+    _fac1 = 1.0 / (h * h * h);
 }
 
 float Kernel::InterpolateDensity(float rx, float ry, float rz, float* density, float* position) const {
@@ -27,5 +27,5 @@ float Kernel::InterpolateDensity(float rx, float ry, float rz, float* density, f
 
 void Kernel::SetH(float h) {
     _h = h;
-    _fac1 = 1.0 / (4.0 * h * h * h * _N);
+    _fac1 = 1.0 / (h * h * h);
 }

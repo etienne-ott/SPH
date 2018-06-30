@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include "kernel/bidomain.hpp"
 #include "kernel/gaussian.hpp"
+#include "kernel/cubic_spline.hpp"
 #include "vtk.hpp"
 #include "ascii_output.hpp"
 #include "compute.hpp"
@@ -26,7 +27,7 @@ int main() {
     Renderer r = Renderer();
     r.Init(param["Rix"].as<int>(), param["Riy"].as<int>(), param["Ro"].as<int>());
 
-    Gaussian kernel = Gaussian(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
+    CubicSpline kernel = CubicSpline(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
     Compute compute = Compute(param, &kernel);
 
     VTK vtk = VTK("output/vtk/", &kernel, 20);

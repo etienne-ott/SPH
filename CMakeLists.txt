@@ -15,6 +15,7 @@ set(SOURCES
     "src/kernel/kernel.cpp"
     "src/kernel/gaussian.cpp"
     "src/kernel/bidomain.cpp"
+    "src/kernel/cubic_spline.cpp"
 )
 
 # yaml-cpp library

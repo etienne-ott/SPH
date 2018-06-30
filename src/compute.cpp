@@ -130,7 +130,7 @@ void Compute::CalculateForces() {
             // Pressure force
             _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
             tmp = mass * (_pressure[i] / (_density[i] * _density[i])
-                + _pressure[j] / (_pressure[j] * _pressure[j]));
+                + _pressure[j] / (_density[j] * _density[j]));
 
             pressureForce[0] += tmp * _vec2[0];
             pressureForce[1] += tmp * _vec2[1];
@@ -141,7 +141,7 @@ void Compute::CalculateForces() {
             dvy = _velocity[i * 3 + 1] - _velocity[j * 3 + 1];
             dvz = _velocity[i * 3 + 2] - _velocity[j * 3 + 2];
             tmp = mass / _density[j] / (
-                _vec2[0] * _vec2[0] + _vec2[1] * _vec2[1] + _vec2[2] * _vec2[2]
+                _vec1[0] * _vec1[0] + _vec1[1] * _vec1[1] + _vec1[2] * _vec1[2]
                 + epsilon * h * h
             );
 
@@ -151,8 +151,8 @@ void Compute::CalculateForces() {
         }
 
         _force[i * 3] -= mass * pressureForce[0];
-        _force[i * 3 + 1] += mass * pressureForce[1];
-        _force[i * 3 + 2] += mass * pressureForce[2];
+        _force[i * 3 + 1] -= mass * pressureForce[1];
+        _force[i * 3 + 2] -= mass * pressureForce[2];
 
         _force[i * 3] += mass * mu * 2.f * viscosityForce[0];
         _force[i * 3 + 1] += mass * mu * 2.f * viscosityForce[1];
@@ -166,22 +166,25 @@ void Compute::CalculateForces() {
 }
 
 void Compute::VelocityIntegration(bool firstStep) {
+    float inv_mass = 1.f / _param["mass"].as<float>();
+    float dt = _param["dt"].as<float>();
+
     if (firstStep) {
         for (int i = 0; i < _param["N"].as<int>(); i++) {
-            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 * _param["dt"].as<float>() * _force[i * 3] / _density[i];
-            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 * _param["dt"].as<float>() * _force[i * 3 + 1] / _density[i];
-            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 * _param["dt"].as<float>() * _force[i * 3 + 2] / _density[i];
+            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 * dt * _force[i * 3] * inv_mass;
+            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 * dt * _force[i * 3 + 1] * inv_mass;
+            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 * dt * _force[i * 3 + 2] * inv_mass;
         }
         return;
     }
 
     for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _velocity_halfs[i * 3] += _param["dt"].as<float>() * _force[i * 3] / _density[i];
-        _velocity_halfs[i * 3 + 1] += _param["dt"].as<float>() * _force[i * 3 + 1] / _density[i];
-        _velocity_halfs[i * 3 + 2] += _param["dt"].as<float>() * _force[i * 3 + 2] / _density[i];
-        _velocity[i * 3] = _velocity_halfs[i * 3] + 0.5 * _param["dt"].as<float>() * _force[i * 3] / _density[i];
-        _velocity[i * 3 + 1] = _velocity_halfs[i * 3 + 1] + 0.5 * _param["dt"].as<float>() * _force[i * 3 + 1] / _density[i];
-        _velocity[i * 3 + 2] = _velocity_halfs[i * 3 + 2] + 0.5 * _param["dt"].as<float>() * _force[i * 3 + 2] / _density[i];
+        _velocity_halfs[i * 3] += dt * _force[i * 3] * inv_mass;
+        _velocity_halfs[i * 3 + 1] += dt * _force[i * 3 + 1] * inv_mass;
+        _velocity_halfs[i * 3 + 2] += dt * _force[i * 3 + 2] * inv_mass;
+        _velocity[i * 3] = _velocity_halfs[i * 3] + 0.5 * dt * _force[i * 3] * inv_mass;
+        _velocity[i * 3 + 1] = _velocity_halfs[i * 3 + 1] + 0.5 * dt * _force[i * 3 + 1] * inv_mass;
+        _velocity[i * 3 + 2] = _velocity_halfs[i * 3 + 2] + 0.5 * dt * _force[i * 3 + 2] * inv_mass;
     }
 }
 

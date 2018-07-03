@@ -1,7 +1,7 @@
 #pragma once
 
-#include "kernel/kernel.hpp"
-#include "neighbors.hpp"
+#include "kernel/kernel.h"
+#include "neighbors.h"
 #include <yaml-cpp/yaml.h>
 
 class Compute {

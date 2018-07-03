@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL2/SDL.h"
-#include "kernel/kernel.hpp"
+#include "kernel/kernel.h"
 
 class Renderer {
 public:

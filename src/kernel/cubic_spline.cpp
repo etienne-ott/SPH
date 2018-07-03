@@ -1,5 +1,5 @@
-#include "kernel.hpp"
-#include "cubic_spline.hpp"
+#include "kernel.h"
+#include "cubic_spline.h"
 #include <cmath>
 
 CubicSpline::CubicSpline(float h, int N, float mass) : Kernel(h, N, mass) {

@@ -1,4 +1,4 @@
-#include "vtk.hpp"
+#include "vtk.h"
 #include <iostream>
 #include <cmath>
 

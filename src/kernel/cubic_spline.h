@@ -1,11 +1,13 @@
 #pragma once
 
-#include "kernel.hpp"
+#include "kernel.h"
 
-class Gaussian: public Kernel {
+class CubicSpline: public Kernel {
+private:
+    float _fac2;
 public:
     /// @see Kernel::Kernel
-    Gaussian(float h, int N, float mass);
+    CubicSpline(float h, int N, float mass);
 
     /// @see Kernel::ValueOf
     float ValueOf(float r) const;

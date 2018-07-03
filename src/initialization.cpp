@@ -1,5 +1,5 @@
-#include "random_pool.hpp"
-#include "initialization.hpp"
+#include "random_pool.h"
+#include "initialization.h"
 
 Initialization::Initialization(YAML::Node& param) {
     _param = param;

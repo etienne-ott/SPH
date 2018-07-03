@@ -1,6 +1,6 @@
 #pragma once
 
-#include "kernel.hpp"
+#include "kernel.h"
 
 class Bidomain: public Kernel {
 public:

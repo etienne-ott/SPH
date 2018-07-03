@@ -1,4 +1,4 @@
-#include "ascii_output.hpp"
+#include "ascii_output.h"
 #include <string>
 
 using namespace std;

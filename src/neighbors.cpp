@@ -1,4 +1,4 @@
-#include "neighbors.hpp"
+#include "neighbors.h"
 #include <cmath>
 #include <iostream>
 

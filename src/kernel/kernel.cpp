@@ -1,4 +1,4 @@
-#include "kernel.hpp"
+#include "kernel.h"
 #include <cmath>
 
 Kernel::Kernel(float h, int N, float mass) {

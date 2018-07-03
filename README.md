@@ -6,6 +6,9 @@
 4. ```cd include```
 5. ```git clone path/to/yaml-cpp-repo```
 6. ```cd ../build```
+7. ```mkdir output```
+7. ```mkdir output/ascii```
+7. ```mkdir output/vtk```
 7. ```cmake ./../```
-8. ```make```
+8. ```make -j```
 9. ```cp ../sample.param sample.param```

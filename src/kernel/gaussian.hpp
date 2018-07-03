@@ -1,7 +1,6 @@
-#include "kernel.hpp"
+#pragma once
 
-#ifndef __KERNEL_GAUSSIAN_HPP
-#define __KERNEL_GAUSSIAN_HPP
+#include "kernel.hpp"
 
 class Gaussian: public Kernel {
 public:
@@ -17,4 +16,3 @@ public:
     /// @see Kernel::SOD
     void SOD(float rx, float ry, float rz, float r, float* ret);
 };
-#endif // __KERNEL_GAUSSIAN_HPP

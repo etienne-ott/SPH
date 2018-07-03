@@ -1,8 +1,7 @@
+#pragma once
+
 #include "SDL2/SDL.h"
 #include "kernel/kernel.hpp"
-
-#ifndef __RENDERER_HPP
-#define __RENDERER_HPP
 
 class Renderer {
 public:
@@ -70,4 +69,3 @@ private:
     /// @var _screen SLD_Surface* The SDL surface onto which we render
     SDL_Surface *_screen;
 };
-#endif // __RENDERER_HPP

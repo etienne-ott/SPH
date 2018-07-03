@@ -1,7 +1,6 @@
-#include <yaml-cpp/yaml.h>
+#pragma once
 
-#ifndef __INITIALIZATION_HPP
-#define __INITIALIZATION_HPP
+#include <yaml-cpp/yaml.h>
 
 class Initialization {
 public:
@@ -39,4 +38,3 @@ private:
     /// @var _param YAML::Node The object containing the parameters
     YAML::Node _param;
 };
-#endif // __INITIALIZATION_HPP

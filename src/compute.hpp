@@ -1,9 +1,8 @@
+#pragma once
+
 #include "kernel/kernel.hpp"
 #include "neighbors.hpp"
 #include <yaml-cpp/yaml.h>
-
-#ifndef __COMPUTE_HPP
-#define __COMPUTE_HPP
 
 class Compute {
 public:
@@ -110,4 +109,3 @@ private:
     ///     as opposed to the pressure acting on them by other particles.
     float* _pressure;
 };
-#endif // __COMPUTE_HPP

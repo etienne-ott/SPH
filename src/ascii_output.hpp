@@ -1,8 +1,7 @@
+#pragma once
+
 #include <string>
 #include <yaml-cpp/yaml.h>
-
-#ifndef __ASCII_OUTPUT
-#define __ASCII_OUTPUT
 
 using namespace std;
 
@@ -32,4 +31,3 @@ private:
     /// @var _count int A counter for the number of files since instantiation.
     int _count;
 };
-#endif

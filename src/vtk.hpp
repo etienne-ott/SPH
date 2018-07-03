@@ -1,8 +1,7 @@
+#pragma once
+
 #include "kernel/kernel.hpp"
 #include <string>
-
-#ifndef __VTK_HPP
-#define __VTK_HPP
 
 using namespace std;
 
@@ -46,4 +45,3 @@ private:
     /// @var _kernel Kernel The kernel used for interpolation.
     const Kernel* _kernel;
 };
-#endif //__VTK__HPP

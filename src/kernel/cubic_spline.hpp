@@ -1,7 +1,6 @@
-#include "kernel.hpp"
+#pragma once
 
-#ifndef __KERNEL_CUBIC_SPLINE_HPP
-#define __KERNEL_CUBIC_SPLINE_HPP
+#include "kernel.hpp"
 
 class CubicSpline: public Kernel {
 private:
@@ -19,4 +18,3 @@ public:
     /// @see Kernel::SOD
     void SOD(float rx, float ry, float rz, float r, float* ret);
 };
-#endif // __KERNEL_CUBIC_SPLINE_HPP

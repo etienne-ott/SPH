@@ -1,5 +1,4 @@
-#ifndef __KERNEL_KERNEL_HPP
-#define __KERNEL_KERNEL_HPP
+#pragma once
 
 class Kernel {
 public:
@@ -76,4 +75,3 @@ protected:
     /// @var _fac1 float A precalculated factor used in the kernel
     float _fac1;
 };
-#endif // __KERNEL_KERNEL_HPP

@@ -1,7 +1,6 @@
-#include <random>
+#pragma once
 
-#ifndef __RANDOM_POOL_HPP
-#define __RANDOM_POOL_HPP
+#include <random>
 
 class RandomPool {
 public:
@@ -33,4 +32,3 @@ private:
     /// @var _generator std::default_random_engine The random engine used.
     std::default_random_engine _generator;
 };
-#endif //__RANDOM_POOL_HPP

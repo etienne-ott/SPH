@@ -1,5 +1,5 @@
-#include "kernel.h"
-#include "bidomain.h"
+#include "kernel/kernel.h"
+#include "kernel/bidomain.h"
 #include <cmath>
 
 Bidomain::Bidomain(float h, int N, float mass) : Kernel(h, N, mass) {

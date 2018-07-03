@@ -1,5 +1,5 @@
-#include "kernel.h"
-#include "gaussian.h"
+#include "kernel/kernel.h"
+#include "kernel/gaussian.h"
 #include <cmath>
 
 Gaussian::Gaussian(float h, int N, float mass) : Kernel(h, N, mass) {

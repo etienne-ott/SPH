@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cstdio>
-#include "compute.h"
-#include "initialization.h"
+#include "simulation/compute.h"
+#include "simulation/initialization.h"
 
 Compute::Compute(YAML::Node& param, Kernel* kernel) {
     _isFirstStep = true;

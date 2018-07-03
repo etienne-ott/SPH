@@ -5,14 +5,14 @@ include_directories(include/yaml-cpp/include src)
 
 # SPH project
 set(SOURCES
-    "src/ascii_output.cpp"
-    "src/compute.cpp"
-    "src/initialization.cpp"
+    "src/output/ascii_output.cpp"
+    "src/simulation/compute.cpp"
+    "src/simulation/initialization.cpp"
     "src/main.cpp"
-    "src/neighbors.cpp"
-    "src/random_pool.cpp"
-    "src/renderer.cpp"
-    "src/vtk.cpp"
+    "src/data/neighbors.cpp"
+    "src/util/random_pool.cpp"
+    "src/output/renderer.cpp"
+    "src/output/vtk.cpp"
     "src/kernel/kernel.cpp"
     "src/kernel/gaussian.cpp"
     "src/kernel/bidomain.cpp"

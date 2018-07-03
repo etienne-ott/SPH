@@ -1,10 +1,10 @@
-#include "renderer.h"
+#include "output/renderer.h"
 #include "kernel/bidomain.h"
 #include "kernel/gaussian.h"
 #include "kernel/cubic_spline.h"
-#include "vtk.h"
-#include "ascii_output.h"
-#include "compute.h"
+#include "output/vtk.h"
+#include "output/ascii_output.h"
+#include "simulation/compute.h"
 #include <yaml-cpp/yaml.h>
 
 /// Checks if there has been a SDL_QUIT event since the last time SDL events

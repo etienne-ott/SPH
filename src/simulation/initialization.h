@@ -12,7 +12,8 @@ public:
     /// Initializes the position of the particles.
     ///
     /// @param position float* The position data
-    void InitPosition(float* position);
+    /// @return int The number of created particles
+    int InitPosition(float* position);
 
     /// Initializes the velocity of the particles.
     ///

@@ -4,22 +4,37 @@
 
 ## Problem size parameters
 
-N: 400 # number of particles
-h: 0.1523 # initial smoothing length
-mass: 2.5 # mass of particle
+N: 1000 # number of particles
+h: 0.181 # smoothing length, approx 4 times particle size
+particle_size: 0.04532 # particle radius
+mass: 1.0 # mass of particle
 
 
-## initialization parameters
+## Initialization parameters
 
 rho0: 1000.0 # rest density
-kappa: 1.0 # overlap of particles (larger means closer together) relative
-    # to the kernel smoothing length
+domain_type: "mesh" # options are "box", "ellipsoid" and "mesh"
+mesh_file: "box.obj" # if mesh domain is chosen, points to the mesh file
+distribution_type: 2 # 1: cubic grid, 2: sphere packing, 3: white noise, 4: blue noise
+    # 5: hammersley, 6: halton, 7: golden set
+seed: 12345 # the seed for the RNG producing the particle positions
+disk_radius: 0.1 # disk radius for the blue noise sampling
+disk_tries: 30 # number of tries for the blue noise sampling
+pb_1: 2 # first prime base for hammersley/halton sampling
+pb_2: 3 # second prime base for hammersley/halton sampling
+pb_3: 5 # third prime base for halton sampling
+offset_x: 0.0 # x offset of domain
+offset_y: 0.0 # y offset of domain
+offset_z: 0.0 # z offset of domain
+size_x: 1.0 # x size of domain
+size_y: 1.0 # y size of domain
+size_z: 1.0 # z size of domain
 
 
 ## Time parameters
 
-tend: 1.0 # Time at which the simulation ends
-dt: 0.05 # Time step interval
+tend: 0.5 # Time at which the simulation ends
+dt: 0.01 # Time step interval
 
 
 ## Force parameters
@@ -27,8 +42,8 @@ dt: 0.05 # Time step interval
 k: 1000.0 # gas (spring) constant of pressure
 gamma: 7.0 # elasticity order of pressure
 g: -9.81 # local gravity acceleration
-mu: 0.1 # viscosity parameters
-epsilon : 0.0001 # parameter to avoid division by zero
+mu: 0.01 # viscosity parameters
+epsilon : 0.01 # parameter to avoid division by zero
 dampening: 0.8 # dampening factor on reflection against wall
 
 
@@ -37,3 +52,8 @@ dampening: 0.8 # dampening factor on reflection against wall
 Rix: 400 # Inner width
 Riy: 600 # Inner height
 Ro: 50 # Border width
+
+## Output parameter
+
+write_ascii: True # Write field data as simple ascii/csv data
+write_vtk: False # Write field data as VTK data

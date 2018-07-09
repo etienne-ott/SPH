@@ -8,10 +8,10 @@ enum class DomainType : int {
 
 enum class DistributionType : int {
 	VolumeGrid = 1,
-	WhiteNoise = 2,
-	FastPoissonDisk = 3,
-	GoldenSet = 4,
+	SpherePacking = 2,
+	WhiteNoise = 3,
+	FastPoissonDisk = 4,
 	Hammersley = 5,
 	Halton = 6,
-	SpherePacking = 7
+	GoldenSet = 7
 };

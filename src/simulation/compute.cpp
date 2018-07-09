@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "simulation/compute.h"
 #include "simulation/initialization.h"
+#include <string>
 
 Compute::Compute(YAML::Node& param, Kernel* kernel) {
     _isFirstStep = true;
@@ -10,20 +11,37 @@ Compute::Compute(YAML::Node& param, Kernel* kernel) {
 
     _param = param;
     _kernel = kernel;
-    _neighbors = new Neighbors(h, N);
+
+    // We don't necessarily create all N particles,
+    // so we need to reduce N to the actual number created
+    Initialization init = Initialization(_param);
+    float* tmp = new float[3 * N];
+
+    int nrCreated = init.InitPosition(tmp);
+    if (nrCreated < N) {
+        printf("We wanted %d particles but only created %d\n", N, nrCreated);
+    }
+    _param["N"] = std::to_string(nrCreated);
+    N = nrCreated;
+
+    // copy over positions
+    _position = new float[3 * N];
+    for (int i = 0; i < 3 * N; i++) {
+        _position[i] = tmp[i];
+    }
+    delete[] tmp;
 
     _vec1 = new float[3];
     _vec2 = new float[3];
     _matr1 = new float[9];
-    _position = new float[3 * N];
     _velocity_halfs = new float[3 * N];
     _velocity = new float[3 * N];
     _force = new float[3 * N];
     _density = new float[N];
     _pressure = new float[N];
 
-    Initialization init = Initialization(_param);
-    init.InitPosition(_position);
+    _neighbors = new Neighbors(h, N);
+
     init.InitVelocity(_velocity);
     init.InitPressure(_pressure);
     init.InitForce(_force);

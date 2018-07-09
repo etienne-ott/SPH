@@ -3,7 +3,7 @@
 #include "util/random_pool.h"
 #include <cmath>
 
-GoldenSet::GoldenSet(long seed, int N) {
+GoldenSet::GoldenSet(int N, long seed) {
 	this->seed = seed;
 	this->N = N;
 }

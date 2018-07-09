@@ -43,15 +43,15 @@ int Initialization::InitPosition(float* position) {
         }
 
         case 3: {
-            WhiteNoise distr = WhiteNoise(_param["seed"].as<long>(), N);
+            WhiteNoise distr = WhiteNoise(N, _param["seed"].as<long>());
             nrCreated = distr.createPoints(position, &dom);
             break;
         }
 
         case 4: {
             FastPoissonDisk distr = FastPoissonDisk(
-                _param["seed"].as<long>(),
                 N,
+                _param["seed"].as<long>(),
                 _param["disk_radius"].as<float>(),
                 _param["disk_tries"].as<int>()
             );

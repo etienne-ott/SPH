@@ -2,7 +2,7 @@
 #include "distribution/domain.h"
 #include "util/random_pool.h"
 
-WhiteNoise::WhiteNoise(long seed, int N) {
+WhiteNoise::WhiteNoise(int N, long seed) {
 	this->seed = seed;
 	this->N = N;
 }

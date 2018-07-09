@@ -10,7 +10,7 @@ private:
     int disk_tries;
 
 public:
-	FastPoissonDisk(long seed, int N, float disk_radius, int disk_tries);
+	FastPoissonDisk(int N, long seed, float disk_radius, int disk_tries);
 
 	int createPoints(float* positions, Domain* dom) override;
 };

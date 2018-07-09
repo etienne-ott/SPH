@@ -8,7 +8,7 @@ private:
 	int N;
 
 public:
-	WhiteNoise(long seed, int N);
+	WhiteNoise(int N, long seed);
 
 	int createPoints(float* positions, Domain* dom) override;
 };

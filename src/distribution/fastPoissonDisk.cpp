@@ -5,7 +5,7 @@
 #include <cmath>
 #include "data/grid.h"
 
-FastPoissonDisk::FastPoissonDisk(long seed, int N, float disk_radius, int disk_tries) {
+FastPoissonDisk::FastPoissonDisk(int N, long seed, float disk_radius, int disk_tries) {
 	this->seed = seed;
 	this->N = N;
     this->disk_radius = disk_radius;

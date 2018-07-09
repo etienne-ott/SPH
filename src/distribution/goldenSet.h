@@ -15,7 +15,7 @@ private:
     std::vector<float>* sortByFibFrac(std::vector<float>* pos, int minIndex, int M, float scale);
 
 public:
-	GoldenSet(long seed, int N);
+	GoldenSet(int N, long seed);
 
 	int createPoints(float* positions, Domain* dom) override;
 };

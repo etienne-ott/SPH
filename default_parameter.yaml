@@ -13,7 +13,7 @@ mass: 1.0 # mass of particle
 ## Initialization parameters
 
 rho0: 1000.0 # rest density
-domain_type: "mesh" # options are "box", "ellipsoid" and "mesh"
+domain_type: "box" # options are "box", "ellipsoid" and "mesh"
 mesh_file: "box.obj" # if mesh domain is chosen, points to the mesh file
 distribution_type: 2 # 1: cubic grid, 2: sphere packing, 3: white noise, 4: blue noise
     # 5: hammersley, 6: halton, 7: golden set
@@ -49,9 +49,8 @@ dampening: 0.8 # dampening factor on reflection against wall
 
 ## Debug view parameters
 
-Rix: 400 # Inner width
-Riy: 600 # Inner height
-Ro: 50 # Border width
+r_width: 600 # width of screen
+r_height: 600 # height of screen
 
 ## Output parameter
 

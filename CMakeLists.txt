@@ -20,7 +20,7 @@ set(SOURCES
     "src/distribution/volumeGrid.cpp"
     "src/distribution/whiteNoise.cpp"
     "src/util/random_pool.cpp"
-    "src/output/renderer.cpp"
+    "src/output/debug_renderer.cpp"
     "src/output/vtk.cpp"
     "src/kernel/kernel.cpp"
     "src/kernel/gaussian.cpp"

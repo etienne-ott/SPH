@@ -1,4 +1,4 @@
-#include "output/renderer.h"
+#include "output/debug_renderer.h"
 #include "kernel/bidomain.h"
 #include "kernel/gaussian.h"
 #include "kernel/cubic_spline.h"
@@ -24,8 +24,8 @@ bool checkQuitSDLEvent(SDL_Event* event) {
 int main() {
     YAML::Node param = YAML::LoadFile("default_parameter.yaml");
 
-    Renderer r = Renderer();
-    r.Init(param["Rix"].as<int>(), param["Riy"].as<int>(), param["Ro"].as<int>());
+    DebugRenderer renderer = DebugRenderer();
+    renderer.Init(param["r_width"].as<int>(), param["r_height"].as<int>());
 
     CubicSpline kernel = CubicSpline(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
     Compute compute = Compute(param, &kernel);
@@ -37,7 +37,8 @@ int main() {
     SDL_Event event;
     float t = 0.0;
 
-    r.DebugViewPositions(compute.GetPosition(), param["N"].as<int>(), t);
+    renderer.DrawPoints(compute.GetPosition(), param["N"].as<int>(), 1.f);
+    renderer.Render();
 
     while (t < param["tend"].as<float>() && running) {
         compute.Timestep();
@@ -55,7 +56,9 @@ int main() {
             );
         }
 
-        r.DebugViewPositions(compute.GetPosition(), param["N"].as<int>(), t);
+        renderer.ClearScreen();
+        renderer.DrawPoints(compute.GetPosition(), param["N"].as<int>(), 1.f);
+        renderer.Render();
         running = !checkQuitSDLEvent(&event);
 
         t += param["dt"].as<float>();

@@ -1,9 +1,6 @@
 # build targets and make system stuff
-build/
-include/
+build/*
+include/*
 
 # ide files
 .vscode
-
-# output folder (specific files will be added to a commit manually)
-output/

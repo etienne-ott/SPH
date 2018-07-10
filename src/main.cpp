@@ -21,11 +21,22 @@ bool checkQuitSDLEvent(SDL_Event* event) {
     return false;
 }
 
+void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
+    r.ClearScreen();
+    r.DrawPoints(c.GetPosition(), param["N"].as<int>(), 1.f);
+    r.Render();
+}
+
 int main() {
     YAML::Node param = YAML::LoadFile("default_parameter.yaml");
 
     DebugRenderer renderer = DebugRenderer();
     renderer.Init(param["r_width"].as<int>(), param["r_height"].as<int>());
+    renderer.setCameraPosition(
+        param["camera_x"].as<float>(),
+        param["camera_y"].as<float>(),
+        param["camera_z"].as<float>()
+    );
 
     CubicSpline kernel = CubicSpline(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
     Compute compute = Compute(param, &kernel);
@@ -37,8 +48,7 @@ int main() {
     SDL_Event event;
     float t = 0.0;
 
-    renderer.DrawPoints(compute.GetPosition(), param["N"].as<int>(), 1.f);
-    renderer.Render();
+    drawDebugView(renderer, compute, param);
 
     while (t < param["tend"].as<float>() && running) {
         compute.Timestep();
@@ -56,11 +66,8 @@ int main() {
             );
         }
 
-        renderer.ClearScreen();
-        renderer.DrawPoints(compute.GetPosition(), param["N"].as<int>(), 1.f);
-        renderer.Render();
+        drawDebugView(renderer, compute, param);
         running = !checkQuitSDLEvent(&event);
-
         t += param["dt"].as<float>();
     }
 

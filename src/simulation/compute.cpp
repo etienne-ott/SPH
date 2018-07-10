@@ -126,8 +126,6 @@ void Compute::CalculateForces() {
             + _velocity[i * 3 + 2] * _velocity[i * 3 + 2]);
 
         // 1-body forces, currently only gravity
-        // @TODO figure out why g needs to be positive in order
-        // for gravity to point downwards
         _force[i * 3 + 1] += mass * g;
 
         // 2-body forces

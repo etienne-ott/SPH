@@ -31,9 +31,22 @@ void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
     if (!isLoaded) {
         box.loadMeshFromOBJFile(param["bbox_mesh"].as<std::string>());
         isLoaded = true;
-        printf("Loaded bbox mesh\n");
+        printf("Loaded boundary mesh\n");
     }
     r.DrawWireframe(&box);
+
+    // We draw the initialization domain as a mesh, if set, but need to
+    // load this information only once
+    if (param["domain_type"].as<std::string>() == "mesh") {
+        static Mesh domMesh = Mesh();
+        static bool domMeshIsLoaded = false;
+        if (!domMeshIsLoaded) {
+            domMesh.loadMeshFromOBJFile(param["mesh_file"].as<std::string>());
+            domMeshIsLoaded = true;
+            printf("Loaded initialization mesh\n");
+        }
+        r.DrawWireframe(&domMesh);
+    }
 
     r.DrawPoints(c.GetPosition(), param["N"].as<int>(), 1.f);
 

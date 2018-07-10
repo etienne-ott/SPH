@@ -33,7 +33,7 @@ void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
         isLoaded = true;
         printf("Loaded boundary mesh\n");
     }
-    r.DrawWireframe(&box);
+    r.DrawWireframe(&box, Color::red);
 
     // We draw the initialization domain as a mesh, if set, but need to
     // load this information only once
@@ -45,7 +45,7 @@ void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
             domMeshIsLoaded = true;
             printf("Loaded initialization mesh\n");
         }
-        r.DrawWireframe(&domMesh);
+        r.DrawWireframe(&domMesh, Color::green);
     }
 
     r.DrawPoints(c.GetPosition(), param["N"].as<int>(), 1.f);

@@ -47,6 +47,7 @@ public:
     void DrawSquareLLB(float x, float y, uint size, uint32_t c);
 
     void DrawWireframe(Mesh* mesh);
+    void DrawWireframe(Mesh* mesh, Color c);
 
     void DrawNormals(Mesh* mesh);
 

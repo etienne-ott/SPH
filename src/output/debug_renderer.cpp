@@ -79,6 +79,10 @@ void DebugRenderer::DrawSquareLLB(float x, float y, uint size, uint32_t c) {
 }
 
 void DebugRenderer::DrawWireframe(Mesh* mesh) {
+    DrawWireframe(mesh, Color::white);
+}
+
+void DebugRenderer::DrawWireframe(Mesh* mesh, Color c) {
     float fov_fac_x = sin(2 * M_PI * _camera_fov * 0.5f / 360.f) * 2.f;
     float fov_fac_y = fov_fac_x * _height / _width;
 
@@ -102,21 +106,24 @@ void DebugRenderer::DrawWireframe(Mesh* mesh) {
             0.5 + (vtx1_x / (fov_fac_x * vtx1_z)),
             0.5 + (vtx1_y / (fov_fac_y * vtx1_z)),
             0.5 + (vtx2_x / (fov_fac_x * vtx2_z)),
-            0.5 + (vtx2_y / (fov_fac_y * vtx2_z))
+            0.5 + (vtx2_y / (fov_fac_y * vtx2_z)),
+            c
         );
 
         this->DrawLine(
             0.5 + (vtx2_x / (fov_fac_x * vtx2_z)),
             0.5 + (vtx2_y / (fov_fac_y * vtx2_z)),
             0.5 + (vtx3_x / (fov_fac_x * vtx3_z)),
-            0.5 + (vtx3_y / (fov_fac_y * vtx3_z))
+            0.5 + (vtx3_y / (fov_fac_y * vtx3_z)),
+            c
         );
 
         this->DrawLine(
             0.5 + (vtx3_x / (fov_fac_x * vtx3_z)),
             0.5 + (vtx3_y / (fov_fac_y * vtx3_z)),
             0.5 + (vtx1_x / (fov_fac_x * vtx1_z)),
-            0.5 + (vtx1_y / (fov_fac_y * vtx1_z))
+            0.5 + (vtx1_y / (fov_fac_y * vtx1_z)),
+            c
         );
     }
 }

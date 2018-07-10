@@ -16,12 +16,20 @@ Initialization::Initialization(YAML::Node& param) {
 }
 
 int Initialization::InitPosition(float* position) {
-    Domain dom = Domain(DomainType::Cube, _param);
+    Mesh m = Mesh();
+    DomainType type;
 
     if (_param["domain_type"].as<std::string>() == "ellipsoid") {
-        dom = Domain(DomainType::Sphere, _param);
+        type = DomainType::Sphere;
     } else if (_param["domain_type"].as<std::string>() == "mesh") {
-        Mesh m = Mesh();
+        type = DomainType::Mesh;
+    } else if (_param["domain_type"].as<std::string>() == "box") {
+        type = DomainType::Cube;
+    }
+
+    Domain dom = Domain(type, _param);
+
+    if (_param["domain_type"].as<std::string>() == "mesh") {
         m.loadMeshFromOBJFile(_param["mesh_file"].as<std::string>());
         dom.setMesh(&m);
     }

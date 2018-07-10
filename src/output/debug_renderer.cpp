@@ -69,7 +69,7 @@ void DebugRenderer::DrawSquareLLB(float x, float y, uint size, uint32_t c) {
         for (uint j = 0; j < size; j++) {
             sx = int(x * _width) + i;
             sy = int(y * _height) + j;
-            if (sx < 0 || sx >= _width || sy < 0 || sy > _height) {
+            if (sx < 0 || sx >= _width || sy <= 0 || sy > _height) {
                 continue;
             }
 

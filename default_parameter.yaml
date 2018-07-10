@@ -13,8 +13,10 @@ mass: 1.0 # mass of particle
 ## Initialization parameters
 
 rho0: 1000.0 # rest density
-domain_type: "box" # options are "box", "ellipsoid" and "mesh"
-mesh_file: "box.obj" # if mesh domain is chosen, points to the mesh file
+domain_type: "mesh" # options are "box", "ellipsoid" and "mesh"
+mesh_file: "../meshes/frustum.obj" # if mesh domain is chosen, points to the mesh file
+bbox_mesh: "../meshes/box.obj" # points to the mesh that indicates the bounding box
+    # of the simulation where the boundary collisions are happening
 distribution_type: 2 # 1: cubic grid, 2: sphere packing, 3: white noise, 4: blue noise
     # 5: hammersley, 6: halton, 7: golden set
 seed: 12345 # the seed for the RNG producing the particle positions
@@ -33,7 +35,7 @@ size_z: 1.0 # z size of domain
 
 ## Time parameters
 
-tend: 0.5 # Time at which the simulation ends
+tend: 0.05 # Time at which the simulation ends
 dt: 0.01 # Time step interval
 
 
@@ -51,8 +53,11 @@ dampening: 0.8 # dampening factor on reflection against wall
 
 r_width: 600 # width of screen
 r_height: 600 # height of screen
+camera_x: 0.5 # camera x position
+camera_y: 0.5 # camera y position
+camera_z: 1.25 # camera z position
 
 ## Output parameter
 
-write_ascii: True # Write field data as simple ascii/csv data
+write_ascii: False # Write field data as simple ascii/csv data
 write_vtk: False # Write field data as VTK data

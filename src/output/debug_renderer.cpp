@@ -98,10 +98,6 @@ void DebugRenderer::DrawWireframe(Mesh* mesh) {
         float vtx3_y = vertices[faces[i + 2]].getY() - _camera_y;
         float vtx3_z = vertices[faces[i + 2]].getZ() + _camera_z;
 
-        if (vtx1_z < 0.05 || vtx2_z < 0.05 || vtx3_z < 0.05) {
-            continue;
-        }
-
         this->DrawLine(
             0.5 + (vtx1_x / (fov_fac_x * vtx1_z)),
             0.5 + (vtx1_y / (fov_fac_y * vtx1_z)),

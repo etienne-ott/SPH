@@ -23,7 +23,20 @@ bool checkQuitSDLEvent(SDL_Event* event) {
 
 void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
     r.ClearScreen();
+
+    // We draw the bounding box as a mesh, but need to load
+    // this information only once
+    static Mesh box = Mesh();
+    static bool isLoaded = false;
+    if (!isLoaded) {
+        box.loadMeshFromOBJFile(param["bbox_mesh"].as<std::string>());
+        isLoaded = true;
+        printf("Loaded bbox mesh\n");
+    }
+    r.DrawWireframe(&box);
+
     r.DrawPoints(c.GetPosition(), param["N"].as<int>(), 1.f);
+
     r.Render();
 }
 

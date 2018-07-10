@@ -253,9 +253,7 @@ void Compute::PositionIntegration() {
             _position[i * 3 + 1] = -newval;
             _velocity_halfs[i * 3 + 1] = -_velocity_halfs[i * 3 + 1];
         } else if (newval > 1.0) {
-            damp = true;
-            _position[i * 3 + 1] = 2.0 - newval;
-            _velocity_halfs[i * 3 + 1] = -_velocity_halfs[i * 3 + 1];
+            _position[i * 3 + 1] = 1.f;
         } else {
             _position[i * 3 + 1] = newval;
         }
@@ -267,7 +265,9 @@ void Compute::PositionIntegration() {
             _position[i * 3 + 2] = -newval;
             _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
         } else if (newval > 1.0) {
-            _position[i * 3 + 2] = 1.f;
+            damp = true;
+            _position[i * 3 + 2] = 2.0 - newval;
+            _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
         } else {
             _position[i * 3 + 2] = newval;
         }

@@ -193,6 +193,11 @@ void Mesh::writeMeshToOBJFile(std::string filepath)
 
 void Mesh::centerOnOrigin()
 {
+    Vector3D<float> og = Vector3D<float>(0.f, 0.f, 0.f);
+    this->centerOn(og);
+}
+
+void Mesh::centerOn(Vector3D<float> point) {
     Vector3D<float> cog = Vector3D<float>(0.f, 0.f, 0.f);
     Vector3D<float> centeredVertex;
 
@@ -202,17 +207,17 @@ void Mesh::centerOnOrigin()
     cog /= float(this->vertices.size());
 
     for (uint i = 0; i < this->vertices.size(); i++) {
-        centeredVertex = Vector3D<float>(this->vertices[i] - cog);
+        centeredVertex = Vector3D<float>(this->vertices[i] - cog + point);
         this->vertices[i] = centeredVertex;
     }
 
     this->needsRecalculation[RecalculationFlags::BoundingBox] = true;
 }
 
-void Mesh::scaleToNormal()
+void Mesh::scaleTo(float scale)
 {
     float* box = this->getBoundingBox();
-    float scale = 1.0f / std::max(
+    float boxScale = scale / std::max(
         fabs(box[3] - box[0]),
         std::max(
             fabs(box[3] - box[1]),
@@ -222,9 +227,9 @@ void Mesh::scaleToNormal()
 
     for (uint i = 0; i < this->vertices.size(); i++) {
         this->vertices[i].set(
-            this->vertices[i].getX() * scale,
-            this->vertices[i].getY() * scale,
-            this->vertices[i].getZ() * scale
+            this->vertices[i].getX() * boxScale,
+            this->vertices[i].getY() * boxScale,
+            this->vertices[i].getZ() * boxScale
         );
     }
 

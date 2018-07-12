@@ -40,7 +40,9 @@ public:
     void writeMeshToOBJFile(std::string filepath);
 
     void centerOnOrigin();
+    void centerOn(Vector3D<float> point);
     void scaleToNormal();
+    void scaleTo(float scale);
     void rotate(float* matrix);
 
     bool pointIsInsideMesh(Vector3D<float>& x);

@@ -11,6 +11,7 @@ private:
     int size_x;
     int size_y;
     int size_z;
+    float lx, ly, lz;
     std::vector<int> currentList;
 
 public:

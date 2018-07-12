@@ -9,6 +9,10 @@ Neighbors::Neighbors(float h, int N, float* bbox) {
     this->size_y = std::ceil((bbox[4] - bbox[1]) / h);
     this->size_z = std::ceil((bbox[5] - bbox[2]) / h);
 
+    this->lx = bbox[0];
+    this->ly = bbox[1];
+    this->lz = bbox[2];
+
     this->grid = std::vector<std::vector<int>>();
     this->currentList = std::vector<int>();
     this->indices = new int[3 * N];
@@ -36,9 +40,9 @@ void Neighbors::sortParticlesIntoGrid(float* positions) {
     float invh = 1.f / h;
 
     for (int i = 0; i < N; i++) {
-        int idx_x = std::floor(positions[i * 3] * invh);
-        int idx_y = std::floor(positions[i * 3 + 1] * invh);
-        int idx_z = std::floor(positions[i * 3 + 2] * invh);
+        int idx_x = std::floor((positions[i * 3] - lx) * invh);
+        int idx_y = std::floor((positions[i * 3 + 1] - ly) * invh);
+        int idx_z = std::floor((positions[i * 3 + 2] - lz) * invh);
 
         this->indices[i * 3] = idx_x;
         this->indices[i * 3 + 1] = idx_y;

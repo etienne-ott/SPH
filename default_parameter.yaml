@@ -5,10 +5,10 @@
 ## Problem size parameters
 
 N: 1000 # number of particles
-h: 0.04 # smoothing length, approx 4 times particle size
-particle_size: 0.01 # particle radius
-mass: 1.0 # mass of particle
+h: 0.15 # smoothing length, approx 4 times particle size
+particle_size: 0.0361 # particle radius
 rho0: 1000.0 # rest density
+
 
 ## Initialization parameters
 
@@ -66,6 +66,7 @@ r_height: 600 # height of screen
 camera_x: 0.5 # camera x position
 camera_y: 0.5 # camera y position
 camera_z: 1.25 # camera z position
+
 
 ## Output parameter
 

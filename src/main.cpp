@@ -76,6 +76,14 @@ int main() {
         param["camera_z"].as<float>()
     );
 
+    float h = param["h"].as<float>();
+    float psize = param["particle_size"].as<float>();
+    float rho0 = param["rho0"].as<float>();
+    param["mass"] = 8.f * psize * psize * psize * rho0;
+    printf("Calculated mass is %f\n", param["mass"].as<float>());
+    printf("Calculated cubic volume is %f\n", 8.f * psize * psize * psize);
+    printf("Calculated spheric volume is %f\n", 4.f / 3.f * M_PI * psize * psize * psize);
+
     CubicSpline kernel = CubicSpline(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
     Compute compute = Compute(param, &kernel);
 

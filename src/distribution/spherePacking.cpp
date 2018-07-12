@@ -12,7 +12,6 @@ int SpherePacking::createPoints(float* positions, Domain* dom) {
 
     float* x = new float[3];
 	float* box = dom->getBoundingBox();
-    float boxVolume = (box[3] - box[0]) * (box[4] - box[1]) * (box[5] - box[2]);
 
     float density = M_PI / sqrt(2.f) / 3.f,
         sq3 = sqrt(3.f),

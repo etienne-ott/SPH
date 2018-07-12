@@ -17,7 +17,7 @@ Initialization::Initialization(YAML::Node& param) {
 
 int Initialization::InitPosition(float* position) {
     Mesh m = Mesh();
-    DomainType type;
+    DomainType type = DomainType::Cube;
 
     if (_param["domain_type"].as<std::string>() == "ellipsoid") {
         type = DomainType::Sphere;

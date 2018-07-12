@@ -32,7 +32,7 @@ Neighbors::~Neighbors() {
 
 void Neighbors::sortParticlesIntoGrid(float* positions) {
     // clear old data
-    for (int i = 0; i < this->grid.size(); i++) {
+    for (uint i = 0; i < this->grid.size(); i++) {
         this->grid.at(i).clear();
     }
 
@@ -58,7 +58,7 @@ std::vector<int> Neighbors::getNeighbors(int idx) {
     for (int i = std::max(0, this->indices[idx * 3] - 1); i <= std::min(size_x - 1, this->indices[idx * 3] + 1); i++) {
         for (int j = std::max(0, this->indices[idx * 3 + 1] - 1); j <= std::min(size_y - 1, this->indices[idx * 3 + 1] + 1); j++) {
             for (int k = std::max(0, this->indices[idx * 3 + 2] - 1); k <= std::min(size_z - 1, this->indices[idx * 3 + 2] + 1); k++) {
-                for (int l = 0; l < this->grid.at(k * size_y * size_x + j * size_x + i).size(); l++) {
+                for (uint l = 0; l < this->grid.at(k * size_y * size_x + j * size_x + i).size(); l++) {
                     this->currentList.push_back(this->grid.at(k * size_y * size_x + j * size_x + i).at(l));
                 }
             }

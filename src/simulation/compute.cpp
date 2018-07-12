@@ -150,7 +150,7 @@ void Compute::CalculateForces() {
 
         std::vector<int> candidates = _neighbors->getNeighbors(i);
 
-        for (int k = 0; k < candidates.size(); k++) {
+        for (uint k = 0; k < candidates.size(); k++) {
             int j = candidates.at(k);
 
             if (j == i) {

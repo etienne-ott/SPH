@@ -148,7 +148,9 @@ int GoldenSet::createPoints(float* positions, Domain* dom) {
 		}
 	}
 
-    delete samplesX, samplesY, samplesZ;
+    delete samplesX;
+	delete samplesY;
+	delete samplesZ;
 	delete[] x;
 	delete[] s;
 

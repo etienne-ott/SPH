@@ -76,7 +76,6 @@ int main() {
         param["camera_z"].as<float>()
     );
 
-    float h = param["h"].as<float>();
     float psize = param["particle_size"].as<float>();
     float rho0 = param["rho0"].as<float>();
     param["mass"] = 8.f * psize * psize * psize * rho0;

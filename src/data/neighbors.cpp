@@ -2,18 +2,20 @@
 #include <cmath>
 #include <iostream>
 
-Neighbors::Neighbors(float h, int N) {
+Neighbors::Neighbors(float h, int N, float* bbox) {
     this->h = h;
     this->N = N;
-    this->M = std::ceil(1.f / h);
+    this->size_x = std::ceil((bbox[3] - bbox[0]) / h);
+    this->size_y = std::ceil((bbox[4] - bbox[1]) / h);
+    this->size_z = std::ceil((bbox[5] - bbox[2]) / h);
 
     this->grid = std::vector<std::vector<int>>();
     this->currentList = std::vector<int>();
     this->indices = new int[3 * N];
 
-    for (int i = 0; i < M; i++) {
-        for (int j = 0; j < M; j++) {
-            for (int k = 0; k < M; k++) {
+    for (int i = 0; i < size_x; i++) {
+        for (int j = 0; j < size_y; j++) {
+            for (int k = 0; k < size_z; k++) {
                 this->grid.push_back(std::vector<int>());
             }
         }
@@ -42,18 +44,18 @@ void Neighbors::sortParticlesIntoGrid(float* positions) {
         this->indices[i * 3 + 1] = idx_y;
         this->indices[i * 3 + 2] = idx_z;
 
-        this->grid.at(idx_z * M * M + idx_y * M + idx_x).push_back(i);
+        this->grid.at(idx_z * size_y * size_x + idx_y * size_x + idx_x).push_back(i);
     }
 }
 
 std::vector<int> Neighbors::getNeighbors(int idx) {
     this->currentList.clear();
 
-    for (int i = std::max(0, this->indices[idx * 3] - 1); i <= std::min(M - 1, this->indices[idx * 3] + 1); i++) {
-        for (int j = std::max(0, this->indices[idx * 3 + 1] - 1); j <= std::min(M - 1, this->indices[idx * 3 + 1] + 1); j++) {
-            for (int k = std::max(0, this->indices[idx * 3 + 2] - 1); k <= std::min(M - 1, this->indices[idx * 3 + 2] + 1); k++) {
-                for (int l = 0; l < this->grid.at(k * M * M + j * M + i).size(); l++) {
-                    this->currentList.push_back(this->grid.at(k * M * M + j * M + i).at(l));
+    for (int i = std::max(0, this->indices[idx * 3] - 1); i <= std::min(size_x - 1, this->indices[idx * 3] + 1); i++) {
+        for (int j = std::max(0, this->indices[idx * 3 + 1] - 1); j <= std::min(size_y - 1, this->indices[idx * 3 + 1] + 1); j++) {
+            for (int k = std::max(0, this->indices[idx * 3 + 2] - 1); k <= std::min(size_z - 1, this->indices[idx * 3 + 2] + 1); k++) {
+                for (int l = 0; l < this->grid.at(k * size_y * size_x + j * size_x + i).size(); l++) {
+                    this->currentList.push_back(this->grid.at(k * size_y * size_x + j * size_x + i).at(l));
                 }
             }
         }

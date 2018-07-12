@@ -5,18 +5,15 @@
 ## Problem size parameters
 
 N: 1000 # number of particles
-h: 0.181 # smoothing length, approx 4 times particle size
-particle_size: 0.04532 # particle radius
+h: 0.04 # smoothing length, approx 4 times particle size
+particle_size: 0.01 # particle radius
 mass: 1.0 # mass of particle
-
+rho0: 1000.0 # rest density
 
 ## Initialization parameters
 
-rho0: 1000.0 # rest density
 domain_type: "mesh" # options are "box", "ellipsoid" and "mesh"
 mesh_file: "../meshes/frustum.obj" # if mesh domain is chosen, points to the mesh file
-bbox_mesh: "../meshes/box.obj" # points to the mesh that indicates the bounding box
-    # of the simulation where the boundary collisions are happening
 distribution_type: 2 # 1: cubic grid, 2: sphere packing, 3: white noise, 4: blue noise
     # 5: hammersley, 6: halton, 7: golden set
 seed: 12345 # the seed for the RNG producing the particle positions
@@ -35,7 +32,7 @@ size_z: 1.0 # z size of domain
 
 ## Time parameters
 
-tend: 0.05 # Time at which the simulation ends
+tend: 0.5 # Time at which the simulation ends
 dt: 0.01 # Time step interval
 
 
@@ -47,6 +44,19 @@ g: -9.81 # local gravity acceleration
 mu: 0.01 # viscosity parameters
 epsilon : 0.01 # parameter to avoid division by zero
 dampening: 0.8 # dampening factor on reflection against wall
+
+
+## Boundary parameters
+
+bbox_mesh: "../meshes/box.obj" # points to the mesh that indicates the bounding box
+    # of the simulation where the boundary collisions are happening. this is not
+    # the collision object, just the indicator for the debug view
+bbox_x_lower: -0.1 # the lower boundary in the x dimension
+bbox_y_lower: -0.1 # the lower boundary in the z dimension
+bbox_z_lower: -0.1 # the lower boundary in the z dimension
+bbox_x_upper: 1.1 # the upper boundary in the x dimension
+bbox_y_upper: 1.1 # the upper boundary in the y dimension
+bbox_z_upper: 1.1 # the upper boundary in the z dimension
 
 
 ## Debug view parameters

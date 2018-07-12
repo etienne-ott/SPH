@@ -30,6 +30,18 @@ void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
     static bool isLoaded = false;
     if (!isLoaded) {
         box.loadMeshFromOBJFile(param["bbox_mesh"].as<std::string>());
+        box.scaleTo(std::max(
+            param["bbox_x_upper"].as<float>() - param["bbox_x_lower"].as<float>(),
+            std::max(
+                param["bbox_y_upper"].as<float>() - param["bbox_y_lower"].as<float>(),
+                param["bbox_z_upper"].as<float>() - param["bbox_z_lower"].as<float>()
+            )
+        ));
+        box.centerOn(Vector3D<float>(
+            param["bbox_x_upper"].as<float>() + param["bbox_x_lower"].as<float>(),
+            param["bbox_y_upper"].as<float>() + param["bbox_y_lower"].as<float>(),
+            param["bbox_z_upper"].as<float>() + param["bbox_z_lower"].as<float>()
+        ) * 0.5f);
         isLoaded = true;
         printf("Loaded boundary mesh\n");
     }

@@ -8,11 +8,13 @@ private:
     int* indices;
     float h;
     int N;
-    int M;
+    int size_x;
+    int size_y;
+    int size_z;
     std::vector<int> currentList;
 
 public:
-    Neighbors(float h, int N);
+    Neighbors(float h, int N, float* bbox);
 
     ~Neighbors();
 

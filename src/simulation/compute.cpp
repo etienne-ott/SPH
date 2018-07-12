@@ -40,7 +40,16 @@ Compute::Compute(YAML::Node& param, Kernel* kernel) {
     _density = new float[N];
     _pressure = new float[N];
 
-    _neighbors = new Neighbors(h, N);
+    float* tmp2 = new float[6];
+    tmp2[0] = param["bbox_x_lower"].as<float>();
+    tmp2[1] = param["bbox_y_lower"].as<float>();
+    tmp2[2] = param["bbox_z_lower"].as<float>();
+    tmp2[3] = param["bbox_x_upper"].as<float>();
+    tmp2[4] = param["bbox_y_upper"].as<float>();
+    tmp2[5] = param["bbox_z_upper"].as<float>();
+
+    _neighbors = new Neighbors(h, N, tmp2);
+    delete[] tmp2;
 
     init.InitVelocity(_velocity);
     init.InitPressure(_pressure);
@@ -216,6 +225,14 @@ void Compute::VelocityIntegration(bool firstStep) {
 }
 
 void Compute::PositionIntegration() {
+    float dt = _param["dt"].as<float>();
+    float lx = _param["bbox_x_lower"].as<float>();
+    float ly = _param["bbox_y_lower"].as<float>();
+    float lz = _param["bbox_z_lower"].as<float>();
+    float ux = _param["bbox_x_upper"].as<float>();
+    float uy = _param["bbox_y_upper"].as<float>();
+    float uz = _param["bbox_z_upper"].as<float>();
+
     // Do _position integration (leap frog) with collision detection
     // against the standard cube spanned by (0,0,0)x(1,1,1).
     // On collision we reflect the respective component and rescale the
@@ -233,40 +250,42 @@ void Compute::PositionIntegration() {
         bool damp = false;
 
         // Reflection of x component
-        newval = _position[i * 3] + _velocity_halfs[i * 3] * _param["dt"].as<float>();
-        if (newval < 0.0) {
+        newval = _position[i * 3] + _velocity_halfs[i * 3] * dt;
+        if (newval < lx) {
             damp = true;
-            _position[i * 3] = -newval;
+            _position[i * 3] = lx + fabs(lx - newval);
             _velocity_halfs[i * 3] = -_velocity_halfs[i * 3];
-        } else if (newval > 1.0) {
+        } else if (newval > ux) {
             damp = true;
-            _position[i * 3] = 2.0 - newval;
+            _position[i * 3] = ux - fabs(newval - ux);
             _velocity_halfs[i * 3] = -_velocity_halfs[i * 3];
         } else {
             _position[i * 3] = newval;
         }
 
         // Reflection of y component
-        newval = _position[i * 3 + 1] + _velocity_halfs[i * 3 + 1] * _param["dt"].as<float>();
-        if (newval < 0.0) {
+        newval = _position[i * 3 + 1] + _velocity_halfs[i * 3 + 1] * dt;
+        if (newval < ly) {
             damp = true;
-            _position[i * 3 + 1] = -newval;
+            _position[i * 3 + 1] = ly + fabs(ly - newval);
             _velocity_halfs[i * 3 + 1] = -_velocity_halfs[i * 3 + 1];
-        } else if (newval > 1.0) {
-            _position[i * 3 + 1] = 1.f;
+        } else if (newval > uy) {
+            damp = true;
+            _position[i * 3 + 1] = uy - fabs(newval - uy);
+            _velocity_halfs[i * 3 + 1] = -_velocity_halfs[i * 3 + 1];
         } else {
             _position[i * 3 + 1] = newval;
         }
 
         // Reflection of z component
-        newval = _position[i * 3 + 2] + _velocity_halfs[i * 3 + 2] * _param["dt"].as<float>();
-        if (newval < 0.0) {
+        newval = _position[i * 3 + 2] + _velocity_halfs[i * 3 + 2] * dt;
+        if (newval < lz) {
             damp = true;
-            _position[i * 3 + 2] = -newval;
+            _position[i * 3 + 2] = lz + fabs(lz - newval);
             _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
-        } else if (newval > 1.0) {
+        } else if (newval > uz) {
             damp = true;
-            _position[i * 3 + 2] = 2.0 - newval;
+            _position[i * 3 + 2] = uz - fabs(newval - uz);
             _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
         } else {
             _position[i * 3 + 2] = newval;

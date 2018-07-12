@@ -28,24 +28,6 @@ public:
     /// @param ret float* Output vector (3 dimensional)
     virtual void FOD(float rx, float ry, float rz, float r, float* ret) = 0;
 
-    /// Returns the second order derivative of the kernel function evaluated with
-    /// the given distance r and the individual components rx, ry and rz. The
-    /// distance r could be calculated within the kernel, but since it is
-    /// often necessarily calculated beforehand anyway, it is expected to be
-    /// given as a parameter.
-    /// IMPORTANT: The SOD is not defined if either rx, ry, rz or r is exactly
-    /// zero, since then divisions by zero occur. In practise this often cancels
-    /// out with a multiplication by zero, but be aware that 0 * (1 / 0) is NOT
-    /// zero when dealing with floating point arithmetic. Therefore calls to
-    /// this method should not be done with arguments that have zero values.
-    ///
-    /// @param rx float The x component of the distance vector
-    /// @param ry float The y component of the distance vector
-    /// @param rz float The z component of the distance vector
-    /// @param r float The scalar distance value
-    /// @param ret float* Output vector (9 dimensional)
-    virtual void SOD(float rx, float ry, float rz, float r, float* ret) = 0;
-
     /// Interpolates the density at position (rx,ry,rz) using the kernel
     /// the kernel function.
     ///

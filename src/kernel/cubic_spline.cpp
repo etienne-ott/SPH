@@ -38,7 +38,3 @@ void CubicSpline::FOD(float rx, float ry, float rz, float r, float* ret) {
     ret[1] = _fac2 * -0.5f * q * (3.f * q - 4.f) * ry / q;
     ret[2] = _fac2 * -0.5f * q * (3.f * q - 4.f) * rz / q;
 }
-
-void CubicSpline::SOD(float rx, float ry, float rz, float r, float* ret) {
-    return;
-}

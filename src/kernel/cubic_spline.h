@@ -14,7 +14,4 @@ public:
 
     /// @see Kernel::FOD
     void FOD(float rx, float ry, float rz, float r, float* ret);
-
-    /// @see Kernel::SOD
-    void SOD(float rx, float ry, float rz, float r, float* ret);
 };

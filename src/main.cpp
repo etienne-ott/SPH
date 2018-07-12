@@ -96,13 +96,16 @@ int main() {
     drawDebugView(renderer, compute, param);
 
     while (t < param["tend"].as<float>() && running) {
+        printf("Current timestep %f; ", t);
         compute.Timestep();
 
         if (param["write_vtk"].as<bool>()) {
+            printf("Write VTK output; ");
             vtk.WriteDensity(compute.GetDensity(), compute.GetPosition());
         }
 
         if (param["write_ascii"].as<bool>()) {
+            printf("Write ASCII output; ");
             ascii.WriteParticleStatus(
                 compute.GetDensity(),
                 compute.GetPosition(),
@@ -114,7 +117,10 @@ int main() {
         drawDebugView(renderer, compute, param);
         running = !checkQuitSDLEvent(&event);
         t += param["dt"].as<float>();
+        printf("\n");
     }
+
+    printf("End of simulation\n");
 
     while (running) {
         SDL_Delay(30);

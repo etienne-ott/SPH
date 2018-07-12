@@ -99,7 +99,6 @@ void Compute::Timestep() {
     this->PositionIntegration();
 
     _isFirstStep = false;
-    printf("\n");
 }
 
 void Compute::CalculatePressure() {

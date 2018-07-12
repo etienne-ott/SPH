@@ -44,6 +44,8 @@ g: -9.81 # local gravity acceleration
 mu: 0.01 # viscosity parameters
 epsilon : 0.01 # parameter to avoid division by zero
 dampening: 0.8 # dampening factor on reflection against wall
+pressure_model: "P_GAMMA_ELASTIC" # implemented are P_GAMMA_ELASTIC and
+    # P_DIFFERENCE
 
 
 ## Boundary parameters

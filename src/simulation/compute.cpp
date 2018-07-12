@@ -105,9 +105,16 @@ void Compute::CalculatePressure() {
     float rho0 = _param["rho0"].as<float>(),
         k = _param["k"].as<float>(),
         gamma = _param["gamma"].as<float>();
+    std::string model = _param["pressure_model"].as<std::string>();
 
-    for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _pressure[i] = k * (pow(_density[i] / rho0, gamma) - 1.f);
+    if (model == "P_GAMMA_ELASTIC") {
+        for (int i = 0; i < _param["N"].as<int>(); i++) {
+            _pressure[i] = k * (pow(_density[i] / rho0, gamma) - 1.f);
+        }
+    } else if (model == "P_DIFFERENCE") {
+        for (int i = 0; i < _param["N"].as<int>(); i++) {
+            _pressure[i] = k * (_density[i] - rho0);
+        }
     }
 }
 

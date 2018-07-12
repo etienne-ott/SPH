@@ -6,7 +6,5 @@
 
 class Distribution {
 public:
-	virtual int createPoints(float* positions, Domain* dom) {
-		throw std::runtime_error(std::string("Calling createPoints on Distribution with abstract type."));
-	}
+	virtual int createPoints(float* positions, Domain* dom) = 0;
 };

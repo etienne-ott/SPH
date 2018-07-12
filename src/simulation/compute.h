@@ -79,11 +79,11 @@ private:
     ///     step, which requires special handling.
     bool _isFirstStep;
 
-    /// @var _vec1 float* A temporary 3D vector used in calculations.
-    float* _vec1;
+    /// @var _dr float* A temporary 3D vector used in calculations.
+    float* _dr;
 
-    /// @var _vec1 float* A temporary 3D vector used in calculations.
-    float* _vec2;
+    /// @var _fod float* A temporary 3D vector used in calculations.
+    float* _fod;
 
     /// @var _matr1 float* A temporary 3x3 matrix used in calculations. The
     ///     matrix is indexed row by row.

@@ -31,8 +31,8 @@ Compute::Compute(YAML::Node& param, Kernel* kernel) {
     }
     delete[] tmp;
 
-    _vec1 = new float[3];
-    _vec2 = new float[3];
+    _dr = new float[3];
+    _fod = new float[3];
     _matr1 = new float[9];
     _velocity_halfs = new float[3 * N];
     _velocity = new float[3 * N];
@@ -64,8 +64,8 @@ Compute::~Compute() {
     delete[] _force;
     delete[] _density;
     delete[] _pressure;
-    delete[] _vec1;
-    delete[] _vec2;
+    delete[] _dr;
+    delete[] _fod;
     delete[] _matr1;
     delete _neighbors;
 }
@@ -164,32 +164,32 @@ void Compute::CalculateForces() {
             }
 
             // Calculate distance vector
-            _vec1[0] = _position[i * 3] - _position[j * 3];
-            _vec1[1] = _position[i * 3 + 1] - _position[j * 3 + 1];
-            _vec1[2] = _position[i * 3 + 2] - _position[j * 3 + 2];
-            distance = pow(_vec1[0] * _vec1[0] + _vec1[1] * _vec1[1] + _vec1[2] * _vec1[2], 0.5);
+            _dr[0] = _position[i * 3] - _position[j * 3];
+            _dr[1] = _position[i * 3 + 1] - _position[j * 3 + 1];
+            _dr[2] = _position[i * 3 + 2] - _position[j * 3 + 2];
+            distance = pow(_dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2], 0.5);
 
             // Pressure force
-            _kernel->FOD(_vec1[0], _vec1[1], _vec1[2], distance, _vec2);
+            _kernel->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
             tmp = mass * (_pressure[i] / (_density[i] * _density[i])
                 + _pressure[j] / (_density[j] * _density[j]));
 
-            pressureForce[0] += tmp * _vec2[0];
-            pressureForce[1] += tmp * _vec2[1];
-            pressureForce[2] += tmp * _vec2[2];
+            pressureForce[0] += tmp * _fod[0];
+            pressureForce[1] += tmp * _fod[1];
+            pressureForce[2] += tmp * _fod[2];
 
             // Viscosity force
             dvx = _velocity[i * 3] - _velocity[j * 3];
             dvy = _velocity[i * 3 + 1] - _velocity[j * 3 + 1];
             dvz = _velocity[i * 3 + 2] - _velocity[j * 3 + 2];
             tmp = mass / _density[j] / (
-                _vec1[0] * _vec1[0] + _vec1[1] * _vec1[1] + _vec1[2] * _vec1[2]
+                _dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]
                 + epsilon * h * h
             );
 
-            viscosityForce[0] += tmp * dvx * (_vec1[0] * _vec2[0]);
-            viscosityForce[1] += tmp * dvy * (_vec1[1] * _vec2[1]);
-            viscosityForce[2] += tmp * dvz * (_vec1[2] * _vec2[2]);
+            viscosityForce[0] += tmp * dvx * (_dr[0] * _fod[0]);
+            viscosityForce[1] += tmp * dvy * (_dr[1] * _fod[1]);
+            viscosityForce[2] += tmp * dvz * (_dr[2] * _fod[2]);
         }
 
         _force[i * 3] -= mass * pressureForce[0];

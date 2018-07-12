@@ -4,7 +4,7 @@
 
 using namespace std;
 
-VTK::VTK(string path, const Kernel* kernel, int size) {
+VTK::VTK(string path, Kernel* kernel, int size) {
     _path = path;
     _kernel = kernel;
     _size = size;

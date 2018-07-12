@@ -6,7 +6,7 @@ Bidomain::Bidomain(float h, int N, float mass) : Kernel(h, N, mass) {
 
 }
 
-float Bidomain::ValueOf(float r) const {
+float Bidomain::ValueOf(float r) {
     float v = r / _h;
     if (v >= 0.0 && v < 1.0) {
         v = (4.0 - 6.0 * r * r + 3.0 * r * r * r);

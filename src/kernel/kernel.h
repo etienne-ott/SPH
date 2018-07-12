@@ -13,7 +13,7 @@ public:
     ///
     /// @param r float The distance to evaluate
     /// @return float The value of the kernel function
-    virtual float ValueOf(float r) const = 0;
+    virtual float ValueOf(float r) = 0;
 
     /// Returns the first order derivative of the kernel function evaluated with
     /// the given distance r and the individual components rx, ry and rz. The
@@ -37,7 +37,7 @@ public:
     /// @param density float* The density values of the particles
     /// @param position float* The position of the particles
     /// @return float The interpolated density value at position (rx,ry,rz)
-    float InterpolateDensity(float rx, float ry, float rz, float* density, float* position) const;
+    float InterpolateDensity(float rx, float ry, float rz, float* density, float* position);
 
     /// Sets the smoothing length uses by the kernel to the given value.
     ///

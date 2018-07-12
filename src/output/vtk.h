@@ -17,7 +17,7 @@ public:
     ///   density between particles
     /// @param size int The size of the regular grid, onto which the density
     ///   values are interpolated
-    VTK(string path, const Kernel* kernel, int size);
+    VTK(string path, Kernel* kernel, int size);
 
     /// Writes the density out as a VTK file, interpolating the values on a
     /// regular grid.
@@ -43,5 +43,5 @@ private:
     float _mass;
 
     /// @var _kernel Kernel The kernel used for interpolation.
-    const Kernel* _kernel;
+    Kernel* _kernel;
 };

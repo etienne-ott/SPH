@@ -6,7 +6,7 @@ Gaussian::Gaussian(float h, int N, float mass) : Kernel(h, N, mass) {
 
 }
 
-float Gaussian::ValueOf(float r) const {
+float Gaussian::ValueOf(float r) {
     float q = r / _h;
 
     if (q > 1.0) {

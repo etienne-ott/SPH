@@ -8,7 +8,7 @@ Kernel::Kernel(float h, int N, float mass) {
     _fac1 = 1.0 / (h * h * h);
 }
 
-float Kernel::InterpolateDensity(float rx, float ry, float rz, float* density, float* position) const {
+float Kernel::InterpolateDensity(float rx, float ry, float rz, float* density, float* position) {
     float sum = 0.0;
     float distance = 0.0;
 

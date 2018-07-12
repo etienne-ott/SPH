@@ -8,7 +8,7 @@ public:
     Bidomain(float h, int N, float mass);
 
     /// @see Kernel::ValueOf
-    float ValueOf(float r) const;
+    float ValueOf(float r);
 
     /// @see Kernel::FOD
     void FOD(float rx, float ry, float rz, float r, float* ret);

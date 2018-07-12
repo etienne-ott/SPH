@@ -6,7 +6,7 @@ CubicSpline::CubicSpline(float h, int N, float mass) : Kernel(h, N, mass) {
     _fac2 = 8.f / (_h * _h * _h) * 3.f / (2.f * M_PI);
 }
 
-float CubicSpline::ValueOf(float r) const {
+float CubicSpline::ValueOf(float r) {
     float q = 2.f * r / _h;
 
     if (q >= 2.f) {

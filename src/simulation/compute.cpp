@@ -72,11 +72,13 @@ Compute::~Compute() {
 void Compute::CalculateDensity() {
     int N = _param["N"].as<int>();
     float mass = _param["mass"].as<float>();
+    float h = _param["h"].as<float>();
 
     for (int i = 0; i < N; i++) {
         float sum = 0.0;
         float distance = 0.0;
 
+        // @todo use neighbors!
         for (int j = 0; j < N; j++) {
             distance = pow(
                 (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
@@ -84,7 +86,7 @@ void Compute::CalculateDensity() {
                     + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
                 0.5
             );
-            sum += mass * _kernel->ValueOf(distance);
+            if (distance <= h) sum += mass * _kernel->ValueOf(distance);
         }
 
         _density[i] = sum;
@@ -104,16 +106,19 @@ void Compute::Timestep() {
 void Compute::CalculatePressure() {
     float rho0 = _param["rho0"].as<float>(),
         k = _param["k"].as<float>(),
-        gamma = _param["gamma"].as<float>();
+        gamma = _param["gamma"].as<float>(),
+        k_mod = k * rho0 / gamma;
     std::string model = _param["pressure_model"].as<std::string>();
 
     if (model == "P_GAMMA_ELASTIC") {
         for (int i = 0; i < _param["N"].as<int>(); i++) {
-            _pressure[i] = k * (pow(_density[i] / rho0, gamma) - 1.f);
+            _pressure[i] = (float)(k_mod * (pow(_density[i] / rho0, gamma) - 1.f));
+            _pressure[i] = _pressure[i] * (_pressure[i] > 0);
         }
     } else if (model == "P_DIFFERENCE") {
         for (int i = 0; i < _param["N"].as<int>(); i++) {
             _pressure[i] = k * (_density[i] - rho0);
+            _pressure[i] = _pressure[i] * (_pressure[i] > 0);
         }
     }
 }

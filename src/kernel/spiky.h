@@ -2,10 +2,12 @@
 
 #include "kernel/kernel.h"
 
-class Bidomain: public Kernel {
+class Spiky: public Kernel {
+private:
+    float _fac2;
 public:
     /// @see Kernel::Kernel
-    Bidomain(float h, int N, float mass);
+    Spiky(float h, int N, float mass);
 
     /// @see Kernel::ValueOf
     float ValueOf(float r);

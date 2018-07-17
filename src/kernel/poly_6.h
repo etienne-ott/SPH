@@ -2,10 +2,12 @@
 
 #include "kernel/kernel.h"
 
-class Gaussian: public Kernel {
+class Poly6: public Kernel {
+private:
+    float _fac2;
 public:
     /// @see Kernel::Kernel
-    Gaussian(float h, int N, float mass);
+    Poly6(float h, int N, float mass);
 
     /// @see Kernel::ValueOf
     float ValueOf(float r);

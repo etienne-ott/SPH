@@ -34,10 +34,11 @@ set(SOURCES
     "src/util/random_pool.cpp"
     "src/output/debug_renderer.cpp"
     "src/output/vtk.cpp"
-    "src/kernel/kernel.cpp"
-    "src/kernel/gaussian.cpp"
-    "src/kernel/bidomain.cpp"
     "src/kernel/cubic_spline.cpp"
+    "src/kernel/kernel.cpp"
+    "src/kernel/poly_6.cpp"
+    "src/kernel/spiky.cpp"
+    "src/kernel/wendland.cpp"
 )
 
 # yaml-cpp library

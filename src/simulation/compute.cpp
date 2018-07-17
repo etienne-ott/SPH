@@ -4,13 +4,15 @@
 #include "simulation/initialization.h"
 #include <string>
 
-Compute::Compute(YAML::Node& param, Kernel* kernel) {
+Compute::Compute(YAML::Node& param, Kernel* kernel_d, Kernel* kernel_p, Kernel* kernel_v) {
     _isFirstStep = true;
     int N = param["N"].as<int>();
     float h = param["h"].as<float>();
 
     _param = param;
-    _kernel = kernel;
+    _kernel_density = kernel_d;
+    _kernel_pressure = kernel_p;
+    _kernel_viscosity = kernel_v;
 
     // We don't necessarily create all N particles,
     // so we need to reduce N to the actual number created
@@ -86,7 +88,7 @@ void Compute::CalculateDensity() {
                     + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
                 0.5
             );
-            if (distance <= h) sum += mass * _kernel->ValueOf(distance);
+            if (distance <= h) sum += mass * _kernel_density->ValueOf(distance);
         }
 
         _density[i] = sum;
@@ -175,7 +177,7 @@ void Compute::CalculateForces() {
             distance = pow(_dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2], 0.5);
 
             // Pressure force
-            _kernel->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
+            _kernel_pressure->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
             tmp = mass * (_pressure[i] / (_density[i] * _density[i])
                 + _pressure[j] / (_density[j] * _density[j]));
 
@@ -184,6 +186,7 @@ void Compute::CalculateForces() {
             pressureForce[2] += tmp * _fod[2];
 
             // Viscosity force
+            _kernel_viscosity->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
             dvx = _velocity[i * 3] - _velocity[j * 3];
             dvy = _velocity[i * 3 + 1] - _velocity[j * 3 + 1];
             dvz = _velocity[i * 3 + 2] - _velocity[j * 3 + 2];

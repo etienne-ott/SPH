@@ -8,7 +8,7 @@ Spiky::Spiky(float h, int N, float mass) : Kernel(h, N, mass) {
 
 float Spiky::ValueOf(float r) {
     if (r > _h) return 0.f;
-	
+
 	return 15.0f / (M_PI * std::pow(_h, 6)) * std::pow(_h - r, 3);
 }
 

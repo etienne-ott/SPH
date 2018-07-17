@@ -9,8 +9,10 @@ public:
     /// Constructor.
     ///
     /// @param param YAML::Node& The parameter object
-    /// @param kernel Kernel* The kernel used for calculations
-    Compute(YAML::Node& param, Kernel* kernel);
+    /// @param kernel_d Kernel* The kernel used for density calculation
+    /// @param kernel_p Kernel* The kernel used for pressure calculation
+    /// @param kernel_v Kernel* The kernel used for viscosity calculation
+    Compute(YAML::Node& param, Kernel* kernel_d, Kernel* kernel_p, Kernel* kernel_v);
 
     /// Destructor. Destroys the data fields properly, that were created
     /// during initialization.
@@ -69,8 +71,14 @@ private:
     /// of all necessary parameters.
     YAML::Node _param;
 
-    /// @var _kernel Kernel* The kernel to use for calculations.
-    Kernel* _kernel;
+    /// @var _kernel_density Kernel* The kernel to use for calculations.
+    Kernel* _kernel_density;
+
+    /// @var _kernel_pressure Kernel* The kernel to use for calculations.
+    Kernel* _kernel_pressure;
+
+    /// @var _kernel_viscosity Kernel* The kernel to use for calculations.
+    Kernel* _kernel_viscosity;
 
     /// @var _neighbors Neighbors* A class used to get the neighbors of a particle
     Neighbors* _neighbors;

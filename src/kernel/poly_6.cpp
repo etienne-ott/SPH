@@ -8,7 +8,7 @@ Poly6::Poly6(float h, int N, float mass) : Kernel(h, N, mass) {
 
 float Poly6::ValueOf(float r) {
     if (r > _h) return 0.f;
-	
+
 	return 315.0f / (64.0f * M_PI * std::pow(_h, 9)) * std::pow(_h * _h - r * r, 3);
 }
 

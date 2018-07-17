@@ -84,10 +84,12 @@ int main() {
     printf("Calculated cubic volume is %f\n", 8.f * psize * psize * psize);
     printf("Calculated spheric volume is %f\n", 4.f / 3.f * M_PI * psize * psize * psize);
 
-    CubicSpline kernel = CubicSpline(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
-    Compute compute = Compute(param, &kernel);
+    Poly6 kernel_d = Poly6(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
+    Spiky kernel_p = Spiky(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
+    Wendland kernel_v = Wendland(param["h"].as<float>(), param["N"].as<int>(), param["mass"].as<float>());
+    Compute compute = Compute(param, &kernel_d, &kernel_p, &kernel_v);
 
-    VTK vtk = VTK("output/vtk/", &kernel, 20);
+    VTK vtk = VTK("output/vtk/", &kernel_d, 20);
     ASCIIOutput ascii = ASCIIOutput("output/ascii/");
 
     bool running = true;

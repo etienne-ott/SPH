@@ -22,6 +22,12 @@ bool checkQuitSDLEvent(SDL_Event* event) {
     return false;
 }
 
+void checkWriteBMPOutput(DebugRenderer& renderer, int timestep) {
+    char filename[255];
+    sprintf(filename, "output/bmp/%d.bmp", timestep);
+    renderer.WriteToBMPFile(std::string(filename));
+}
+
 void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
     r.ClearScreen();
 
@@ -95,6 +101,7 @@ int main() {
     bool running = true;
     SDL_Event event;
     float t = 0.0;
+    int step = 1;
 
     drawDebugView(renderer, compute, param);
 
@@ -118,9 +125,14 @@ int main() {
         }
 
         drawDebugView(renderer, compute, param);
-        running = !checkQuitSDLEvent(&event);
+        checkWriteBMPOutput(renderer, step);
+
         t += param["dt"].as<float>();
+        step++;
+
         printf("\n");
+
+        running = !checkQuitSDLEvent(&event);
     }
 
     printf("End of simulation\n");

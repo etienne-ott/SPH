@@ -1,6 +1,7 @@
 #include "debug_renderer.h"
 #include "data/vector3D.h"
 #include <cmath>
+#include <bitmap_image.hpp>
 
 DebugRenderer::DebugRenderer() {
     _title = new char[500];
@@ -295,6 +296,20 @@ void DebugRenderer::fitViewToMesh(Mesh* m) {
             (box[5] - box[2])
         )
     );
+}
+
+void DebugRenderer::WriteToBMPFile(std::string filename) {
+    bitmap_image img(_width, _height);
+    uint32_t* pixels;
+
+    for (int i = 0; i < _height; i++) {
+        for (int j = 0; j < _width; j++) {
+            pixels = (uint32_t*) _screen->pixels + j * _height + i;
+            img.set_pixel(i, j, *pixels >> 16, *pixels >> 8, *pixels);
+        }
+    }
+
+    img.save_image(filename);
 }
 
 int DebugRenderer::Render() {

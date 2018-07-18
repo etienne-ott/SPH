@@ -55,6 +55,8 @@ public:
     void DrawPoints(float* coords, int N, float sign);
     void DrawPoints(float* coords, float* colorVals, int N, float sign);
 
+    void WriteToBMPFile(std::string filename);
+
     /// Renders the current RGB pixel values to the viewport.
     ///
     /// @return int A status flag. Is -1 if the screen is locked, 1 otherwise

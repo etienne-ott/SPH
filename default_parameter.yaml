@@ -74,3 +74,4 @@ camera_z: 1.25 # camera z position
 
 write_ascii: False # Write field data as simple ascii/csv data
 write_vtk: False # Write field data as VTK data
+write_bmp: False # Write the debug renderer's view to .bmp files

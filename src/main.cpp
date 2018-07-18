@@ -125,7 +125,9 @@ int main() {
         }
 
         drawDebugView(renderer, compute, param);
-        checkWriteBMPOutput(renderer, step);
+        if (param["write_bmp"].as<bool>()) {
+            checkWriteBMPOutput(renderer, step);
+        }
 
         t += param["dt"].as<float>();
         step++;

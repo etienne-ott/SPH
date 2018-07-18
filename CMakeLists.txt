@@ -7,7 +7,11 @@ if (NOT CMAKE_BUILD_TYPE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 # add include dirs
-include_directories(include/yaml-cpp/include src)
+include_directories(
+    src
+    include/yaml-cpp/include
+    include/bitmap
+)
 
 # add compiler flags
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic  -march=native -std=c++11")
@@ -42,8 +46,6 @@ set(SOURCES
 )
 
 # yaml-cpp library
-#file(GLOB YAML_SOURCES_LIST "${PROJECT_SOURCE_DIR}/include/yaml-cpp/src/*.cpp")
-#set(YAML_SOURCES "${YAML_SOURCES} ${YAML_SOURCES_LIST}")
 set(YAML_SOURCES
     "include/yaml-cpp/src/binary.cpp"
     "include/yaml-cpp/src/collectionstack.h"
@@ -99,9 +101,14 @@ set(YAML_SOURCES
     "include/yaml-cpp/src/contrib/graphbuilderadapter.cpp"
     "include/yaml-cpp/src/contrib/graphbuilderadapter.h"
 )
-
 add_library(yaml ${YAML_SOURCES})
+
+# bitmap library
+set(BITMAP_SOURCES
+    "include/bitmap/bitmap_test.cpp"
+)
+add_library(bitmap ${BITMAP_SOURCES})
 
 # build main project
 add_executable(SPH ${SOURCES})
-target_link_libraries(SPH yaml SDL2)
+target_link_libraries(SPH yaml bitmap SDL2)

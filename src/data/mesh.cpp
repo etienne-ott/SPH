@@ -54,27 +54,28 @@ void Mesh::loadMeshFromOBJFile(std::string filepath)
     }
 
     bool foundZeroIndex = false;
+    int result;
 
     while (true) {
         char lineBuffer[1024];
 
-        int res = fscanf(file, "%s", lineBuffer);
-        if (res == EOF) {
+        result = fscanf(file, "%s", lineBuffer);
+        if (result == EOF) {
             break;
         }
 
         if (std::strcmp(lineBuffer, "v") == 0) {
             float coords[3];
-            fscanf(file, "%f %f %f\n", &coords[0], &coords[1], &coords[2]);
+            result = fscanf(file, "%f %f %f\n", &coords[0], &coords[1], &coords[2]);
             this->vertices.push_back(Vector3D<float>(coords));
 
         } else if (std::strcmp(lineBuffer, "vt") == 0) {
             // we ignore textures
-            fscanf(file, "%s\n", lineBuffer);
+            result = fscanf(file, "%s\n", lineBuffer);
 
         } else if (std::strcmp(lineBuffer, "vn") == 0 ) {
             // we ignore vertex normals
-            fscanf(file, "%s\n", lineBuffer);
+            result = fscanf(file, "%s\n", lineBuffer);
 
         } else if (std::strcmp(lineBuffer, "f") == 0 ) {
             int vertexIndex[3], uvIndex[3], normalIndex[3];
@@ -83,7 +84,7 @@ void Mesh::loadMeshFromOBJFile(std::string filepath)
             // load line into char buffer so we can read it multiple times
             // this syntax is not a regex pattern, it's scanf's weird formating
             // (although it is technically a regular expression)
-            fscanf(file, "%[^\n]s", lineBuffer);
+            result = fscanf(file, "%[^\n]s", lineBuffer);
 
             // scan for triple vertex/texture/normal format
             int matches = sscanf(
@@ -143,7 +144,7 @@ void Mesh::loadMeshFromOBJFile(std::string filepath)
 
         } else {
             // other line, ignore it entirely
-            fscanf(file, "%s\n", lineBuffer);
+            result = fscanf(file, "%s\n", lineBuffer);
         }
     }
 

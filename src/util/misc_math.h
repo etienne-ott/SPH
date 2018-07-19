@@ -40,7 +40,8 @@ constexpr float get_power(float x)
     return x * get_power<n-1>(x);
 }
 
-// We ignore the unused parameter warning
+// We ignore the unused parameter warning as it is only there to work with
+// the recursive structure of the get_power function
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 template <>
@@ -50,6 +51,10 @@ constexpr float get_power<0>(float x)
 }
 #pragma GCC diagnostic pop
 
+// We ignore the strict aliasing rule on this one for increased performance
+// by not saving the intermediate step in a variable of appropriate type
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 /// Fast Sqrt with floating point precission not really precise
 float inline fastSqrt1(const float& x)
 {
@@ -60,6 +65,7 @@ float inline fastSqrt1(const float& x)
 	i >>= 1;
 	return *(float*) &i;
 }
+#pragma GCC diagnostic pop
 
 /// Slower than fastSqrt1 but almost that precise than std::sqrt and 30% faster
 float inline fastSqrt2(const float& x)

@@ -140,12 +140,20 @@ void Compute::CalculateForces() {
     float h = _param["h"].as<float>();
     float mu = _param["mu"].as<float>();
 
+    // reset forces
+    for (int i = 0; i < _param["N"].as<int>(); i++) {
+        _force[i * 3] = 0.0;
+        _force[i * 3 + 1] = 0.0;
+        _force[i * 3 + 2] = 0.0;
+    }
+
+    // now iterate over the particles and calculate the forces. we only do so
+    // for other particles in the neighborhood with j > i and then apply the
+    // forces to both particles in opposite directions. this uses the force
+    // symmetry to improve performance
     int ix = 0, iy = 1, iz = 2;
     for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _force[ix] = 0.0;
-        _force[iy] = 0.0;
-        _force[iz] = 0.0;
-
+        // calculate kinetic energy for debugging purposes
         kinNrg += 0.5 * mass * (_velocity[ix] * _velocity[ix]
             + _velocity[iy] * _velocity[iy]
             + _velocity[iz] * _velocity[iz]);
@@ -154,23 +162,13 @@ void Compute::CalculateForces() {
         _force[iy] += mass * g;
 
         // 2-body forces
-        // @todo Use symmetry to reduce number of calculations by a factor of 2
-        float* pressureForce = new float[3];
-        pressureForce[0] = 0.0;
-        pressureForce[1] = 0.0;
-        pressureForce[2] = 0.0;
-        float* viscosityForce = new float[3];
-        viscosityForce[0] = 0.0;
-        viscosityForce[1] = 0.0;
-        viscosityForce[2] = 0.0;
-
         std::vector<int> candidates = _neighbors->getNeighbors(i);
-
         int jx, jy, jz;
+
         for (uint k = 0; k < candidates.size(); k++) {
             int j = candidates.at(k);
 
-            if (j == i) {
+            if (j <= i) {
                 continue;
             }
 
@@ -186,38 +184,35 @@ void Compute::CalculateForces() {
 
             // Pressure force
             _kernel_pressure->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
-            tmp = mass * (_pressure[i] / (_density[i] * _density[i])
+            tmp = mass * mass * (_pressure[i] / (_density[i] * _density[i])
                 + _pressure[j] / (_density[j] * _density[j]));
 
-            pressureForce[0] += tmp * _fod[0];
-            pressureForce[1] += tmp * _fod[1];
-            pressureForce[2] += tmp * _fod[2];
+            _force[ix] -= tmp * _fod[0];
+            _force[iy] -= tmp * _fod[1];
+            _force[iz] -= tmp * _fod[2];
+
+            _force[jx] += tmp * _fod[0];
+            _force[jy] += tmp * _fod[1];
+            _force[jz] += tmp * _fod[2];
 
             // Viscosity force
             _kernel_viscosity->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
             dvx = _velocity[ix] - _velocity[jx];
             dvy = _velocity[iy] - _velocity[jy];
             dvz = _velocity[iz] - _velocity[jz];
-            tmp = mass / _density[j] / (
+            tmp = 2.f * mass * mass * mu / _density[j] / (
                 _dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]
                 + epsilon * h * h
             );
 
-            viscosityForce[0] += tmp * dvx * (_dr[0] * _fod[0]);
-            viscosityForce[1] += tmp * dvy * (_dr[1] * _fod[1]);
-            viscosityForce[2] += tmp * dvz * (_dr[2] * _fod[2]);
+            _force[ix] += tmp * dvx * (_dr[0] * _fod[0]);
+            _force[iy] += tmp * dvy * (_dr[1] * _fod[1]);
+            _force[iz] += tmp * dvz * (_dr[2] * _fod[2]);
+
+            _force[jx] -= tmp * dvx * (_dr[0] * _fod[0]);
+            _force[jy] -= tmp * dvy * (_dr[1] * _fod[1]);
+            _force[jz] -= tmp * dvz * (_dr[2] * _fod[2]);
         }
-
-        _force[ix] -= mass * pressureForce[0];
-        _force[iy] -= mass * pressureForce[1];
-        _force[iz] -= mass * pressureForce[2];
-
-        _force[ix] += mass * mu * 2.f * viscosityForce[0];
-        _force[iy] += mass * mu * 2.f * viscosityForce[1];
-        _force[iz] += mass * mu * 2.f * viscosityForce[2];
-
-        delete pressureForce;
-        delete viscosityForce;
 
         ix += 3; iy += 3; iz += 3;
     }

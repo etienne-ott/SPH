@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "simulation/compute.h"
 #include "simulation/initialization.h"
+#include "util/misc_math.h"
 #include <string>
 
 Compute::Compute(YAML::Node& param, Kernel* kernel_d, Kernel* kernel_p, Kernel* kernel_v) {
@@ -80,13 +81,14 @@ void Compute::CalculateDensity() {
         float sum = 0.0;
         float distance = 0.0;
 
-        // @todo use neighbors!
-        for (int j = 0; j < N; j++) {
-            distance = pow(
+        std::vector<int> candidates = _neighbors->getNeighbors(i);
+        for (uint k = 0; k < candidates.size(); k++) {
+            int j = candidates.at(k);
+
+            distance = fastSqrt2(
                 (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
                     + (_position[i * 3 + 1] - _position[j * 3 + 1]) * (_position[i * 3 + 1] - _position[j * 3 + 1])
-                    + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2]),
-                0.5
+                    + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2])
             );
             if (distance <= h) sum += mass * _kernel_density->ValueOf(distance);
         }
@@ -96,6 +98,8 @@ void Compute::CalculateDensity() {
 }
 
 void Compute::Timestep() {
+    _neighbors->sortParticlesIntoGrid(_position);
+
     this->CalculateDensity();
     this->CalculatePressure();
     this->CalculateForces();
@@ -135,8 +139,6 @@ void Compute::CalculateForces() {
     float epsilon = _param["epsilon"].as<float>();
     float h = _param["h"].as<float>();
     float mu = _param["mu"].as<float>();
-
-    _neighbors->sortParticlesIntoGrid(_position);
 
     for (int i = 0; i < _param["N"].as<int>(); i++) {
         _force[i * 3] = 0.0;

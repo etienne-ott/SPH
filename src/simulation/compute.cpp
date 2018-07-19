@@ -140,17 +140,18 @@ void Compute::CalculateForces() {
     float h = _param["h"].as<float>();
     float mu = _param["mu"].as<float>();
 
+    int ix = 0, iy = 1, iz = 2;
     for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _force[i * 3] = 0.0;
-        _force[i * 3 + 1] = 0.0;
-        _force[i * 3 + 2] = 0.0;
+        _force[ix] = 0.0;
+        _force[iy] = 0.0;
+        _force[iz] = 0.0;
 
-        kinNrg += 0.5 * mass * (_velocity[i * 3] * _velocity[i * 3]
-            + _velocity[i * 3 + 1] * _velocity[i * 3 + 1]
-            + _velocity[i * 3 + 2] * _velocity[i * 3 + 2]);
+        kinNrg += 0.5 * mass * (_velocity[ix] * _velocity[ix]
+            + _velocity[iy] * _velocity[iy]
+            + _velocity[iz] * _velocity[iz]);
 
         // 1-body forces, currently only gravity
-        _force[i * 3 + 1] += mass * g;
+        _force[iy] += mass * g;
 
         // 2-body forces
         // @todo Use symmetry to reduce number of calculations by a factor of 2
@@ -165,6 +166,7 @@ void Compute::CalculateForces() {
 
         std::vector<int> candidates = _neighbors->getNeighbors(i);
 
+        int jx, jy, jz;
         for (uint k = 0; k < candidates.size(); k++) {
             int j = candidates.at(k);
 
@@ -172,11 +174,15 @@ void Compute::CalculateForces() {
                 continue;
             }
 
+            jx = j * 3;
+            jy = j * 3 + 1;
+            jz = j * 3 + 2;
+
             // Calculate distance vector
-            _dr[0] = _position[i * 3] - _position[j * 3];
-            _dr[1] = _position[i * 3 + 1] - _position[j * 3 + 1];
-            _dr[2] = _position[i * 3 + 2] - _position[j * 3 + 2];
-            distance = pow(_dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2], 0.5);
+            _dr[0] = _position[ix] - _position[jx];
+            _dr[1] = _position[iy] - _position[jy];
+            _dr[2] = _position[iz] - _position[jz];
+            distance = fastSqrt2(_dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]);
 
             // Pressure force
             _kernel_pressure->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
@@ -189,9 +195,9 @@ void Compute::CalculateForces() {
 
             // Viscosity force
             _kernel_viscosity->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
-            dvx = _velocity[i * 3] - _velocity[j * 3];
-            dvy = _velocity[i * 3 + 1] - _velocity[j * 3 + 1];
-            dvz = _velocity[i * 3 + 2] - _velocity[j * 3 + 2];
+            dvx = _velocity[ix] - _velocity[jx];
+            dvy = _velocity[iy] - _velocity[jy];
+            dvz = _velocity[iz] - _velocity[jz];
             tmp = mass / _density[j] / (
                 _dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]
                 + epsilon * h * h
@@ -202,16 +208,18 @@ void Compute::CalculateForces() {
             viscosityForce[2] += tmp * dvz * (_dr[2] * _fod[2]);
         }
 
-        _force[i * 3] -= mass * pressureForce[0];
-        _force[i * 3 + 1] -= mass * pressureForce[1];
-        _force[i * 3 + 2] -= mass * pressureForce[2];
+        _force[ix] -= mass * pressureForce[0];
+        _force[iy] -= mass * pressureForce[1];
+        _force[iz] -= mass * pressureForce[2];
 
-        _force[i * 3] += mass * mu * 2.f * viscosityForce[0];
-        _force[i * 3 + 1] += mass * mu * 2.f * viscosityForce[1];
-        _force[i * 3 + 2] += mass * mu * 2.f * viscosityForce[2];
+        _force[ix] += mass * mu * 2.f * viscosityForce[0];
+        _force[iy] += mass * mu * 2.f * viscosityForce[1];
+        _force[iz] += mass * mu * 2.f * viscosityForce[2];
 
         delete pressureForce;
         delete viscosityForce;
+
+        ix += 3; iy += 3; iz += 3;
     }
 
     printf("Kinetic energy: %f;", kinNrg);
@@ -220,23 +228,35 @@ void Compute::CalculateForces() {
 void Compute::VelocityIntegration(bool firstStep) {
     float inv_mass = 1.f / _param["mass"].as<float>();
     float dt = _param["dt"].as<float>();
+    float factor1, factor2;
 
     if (firstStep) {
+        int ix = 0, iy = 1, iz = 2;
+        factor1 = dt * inv_mass * 0.5;
+
         for (int i = 0; i < _param["N"].as<int>(); i++) {
-            _velocity_halfs[i * 3] = _velocity[i * 3] +  0.5 * dt * _force[i * 3] * inv_mass;
-            _velocity_halfs[i * 3 + 1] = _velocity[i * 3 + 1] +  0.5 * dt * _force[i * 3 + 1] * inv_mass;
-            _velocity_halfs[i * 3 + 2] = _velocity[i * 3 + 2] +  0.5 * dt * _force[i * 3 + 2] * inv_mass;
+            _velocity_halfs[ix] = _velocity[ix] +  factor1 * _force[ix];
+            _velocity_halfs[iy] = _velocity[iy] +  factor1 * _force[iy];
+            _velocity_halfs[iz] = _velocity[iz] +  factor1 * _force[iz];
+            ix += 3; iy += 3; iz += 3;
         }
         return;
     }
 
+    int ix = 0, iy = 1, iz = 2;
+    factor1 = 0.5f * dt * inv_mass;
+    factor2 = dt * inv_mass;
+
     for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _velocity_halfs[i * 3] += dt * _force[i * 3] * inv_mass;
-        _velocity_halfs[i * 3 + 1] += dt * _force[i * 3 + 1] * inv_mass;
-        _velocity_halfs[i * 3 + 2] += dt * _force[i * 3 + 2] * inv_mass;
-        _velocity[i * 3] = _velocity_halfs[i * 3] + 0.5 * dt * _force[i * 3] * inv_mass;
-        _velocity[i * 3 + 1] = _velocity_halfs[i * 3 + 1] + 0.5 * dt * _force[i * 3 + 1] * inv_mass;
-        _velocity[i * 3 + 2] = _velocity_halfs[i * 3 + 2] + 0.5 * dt * _force[i * 3 + 2] * inv_mass;
+        _velocity_halfs[ix] += factor2 * _force[ix];
+        _velocity_halfs[iy] += factor2 * _force[iy];
+        _velocity_halfs[iz] += factor2 * _force[iz];
+
+        _velocity[ix] = _velocity_halfs[ix] + factor1 * _force[ix];
+        _velocity[iy] = _velocity_halfs[iy] + factor1 * _force[iy];
+        _velocity[iz] = _velocity_halfs[iz] + factor1 * _force[iz];
+
+        ix += 3; iy += 3; iz += 3;
     }
 }
 
@@ -262,57 +282,62 @@ void Compute::PositionIntegration() {
     // @todo in fact, the reflection is too crude, since the kernel seemingly
     // extends into the wall, but should be "squished" against it
     float newval = 0.0;
+    float dampening = _param["dampening"].as<float>();
+    int ix = 0, iy = 1, iz = 2;
+
     for (int i = 0; i < _param["N"].as<int>(); i++) {
         bool damp = false;
 
         // Reflection of x component
-        newval = _position[i * 3] + _velocity_halfs[i * 3] * dt;
+        newval = _position[ix] + _velocity_halfs[ix] * dt;
         if (newval < lx) {
             damp = true;
-            _position[i * 3] = lx + fabs(lx - newval);
-            _velocity_halfs[i * 3] = -_velocity_halfs[i * 3];
+            _position[ix] = lx + fabs(lx - newval);
+            _velocity_halfs[ix] = -_velocity_halfs[ix];
         } else if (newval > ux) {
             damp = true;
-            _position[i * 3] = ux - fabs(newval - ux);
-            _velocity_halfs[i * 3] = -_velocity_halfs[i * 3];
+            _position[ix] = ux - fabs(newval - ux);
+            _velocity_halfs[ix] = -_velocity_halfs[ix];
         } else {
-            _position[i * 3] = newval;
+            _position[ix] = newval;
         }
 
         // Reflection of y component
-        newval = _position[i * 3 + 1] + _velocity_halfs[i * 3 + 1] * dt;
+        newval = _position[iy] + _velocity_halfs[iy] * dt;
         if (newval < ly) {
             damp = true;
-            _position[i * 3 + 1] = ly + fabs(ly - newval);
-            _velocity_halfs[i * 3 + 1] = -_velocity_halfs[i * 3 + 1];
+            _position[iy] = ly + fabs(ly - newval);
+            _velocity_halfs[iy] = -_velocity_halfs[iy];
         } else if (newval > uy) {
             damp = true;
-            _position[i * 3 + 1] = uy - fabs(newval - uy);
-            _velocity_halfs[i * 3 + 1] = -_velocity_halfs[i * 3 + 1];
+            _position[iy] = uy - fabs(newval - uy);
+            _velocity_halfs[iy] = -_velocity_halfs[iy];
         } else {
-            _position[i * 3 + 1] = newval;
+            _position[iy] = newval;
         }
 
         // Reflection of z component
-        newval = _position[i * 3 + 2] + _velocity_halfs[i * 3 + 2] * dt;
+        newval = _position[iz] + _velocity_halfs[iz] * dt;
         if (newval < lz) {
             damp = true;
-            _position[i * 3 + 2] = lz + fabs(lz - newval);
-            _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
+            _position[iz] = lz + fabs(lz - newval);
+            _velocity_halfs[iz] = -_velocity_halfs[iz];
         } else if (newval > uz) {
             damp = true;
-            _position[i * 3 + 2] = uz - fabs(newval - uz);
-            _velocity_halfs[i * 3 + 2] = -_velocity_halfs[i * 3 + 2];
+            _position[iz] = uz - fabs(newval - uz);
+            _velocity_halfs[iz] = -_velocity_halfs[iz];
         } else {
-            _position[i * 3 + 2] = newval;
+            _position[iz] = newval;
         }
 
         // Dampening
         if (damp) {
-            _velocity_halfs[i * 3] *= _param["dampening"].as<float>();
-            _velocity_halfs[i * 3 + 1] *= _param["dampening"].as<float>();
-            _velocity_halfs[i * 3 + 2] *= _param["dampening"].as<float>();
+            _velocity_halfs[ix] *= dampening;
+            _velocity_halfs[iy] *= dampening;
+            _velocity_halfs[iz] *= dampening;
         }
+
+        ix += 3; iy += 3; iz += 3;
     }
 }
 

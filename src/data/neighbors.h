@@ -12,7 +12,6 @@ private:
     int size_y;
     int size_z;
     float lx, ly, lz;
-    std::vector<int> currentList;
 
 public:
     Neighbors(float h, int N, float* bbox);
@@ -21,5 +20,5 @@ public:
 
     void sortParticlesIntoGrid(float* positions);
 
-    std::vector<int> getNeighbors(int idx);
+    void getNeighbors(int idx, std::vector<int>& list);
 };

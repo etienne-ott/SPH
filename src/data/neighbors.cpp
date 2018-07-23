@@ -14,7 +14,6 @@ Neighbors::Neighbors(float h, int N, float* bbox) {
     this->lz = bbox[2];
 
     this->grid = std::vector<std::vector<int>>();
-    this->currentList = std::vector<int>();
     this->indices = new int[3 * N];
 
     for (int i = 0; i < size_x; i++) {
@@ -52,18 +51,14 @@ void Neighbors::sortParticlesIntoGrid(float* positions) {
     }
 }
 
-std::vector<int> Neighbors::getNeighbors(int idx) {
-    this->currentList.clear();
-
+void Neighbors::getNeighbors(int idx, std::vector<int>& list) {
     for (int i = std::max(0, this->indices[idx * 3] - 1); i <= std::min(size_x - 1, this->indices[idx * 3] + 1); i++) {
         for (int j = std::max(0, this->indices[idx * 3 + 1] - 1); j <= std::min(size_y - 1, this->indices[idx * 3 + 1] + 1); j++) {
             for (int k = std::max(0, this->indices[idx * 3 + 2] - 1); k <= std::min(size_z - 1, this->indices[idx * 3 + 2] + 1); k++) {
                 for (uint l = 0; l < this->grid.at(k * size_y * size_x + j * size_x + i).size(); l++) {
-                    this->currentList.push_back(this->grid.at(k * size_y * size_x + j * size_x + i).at(l));
+                    list.push_back(this->grid.at(k * size_y * size_x + j * size_x + i).at(l));
                 }
             }
         }
     }
-
-    return this->currentList;
 }

@@ -4,6 +4,7 @@
 #include "simulation/initialization.h"
 #include "util/misc_math.h"
 #include <string>
+#include <omp.h>
 
 Compute::Compute(YAML::Node& param, Kernel* kernel_d, Kernel* kernel_p, Kernel* kernel_v) {
     _isFirstStep = true;
@@ -54,6 +55,8 @@ Compute::Compute(YAML::Node& param, Kernel* kernel_d, Kernel* kernel_p, Kernel* 
     _neighbors = new Neighbors(h, N, tmp2);
     delete[] tmp2;
 
+    _bounds = new ParallelBounds(param["nr_of_threads"].as<int>(), N);
+
     init.InitVelocity(_velocity);
     init.InitPressure(_pressure);
     init.InitForce(_force);
@@ -71,29 +74,35 @@ Compute::~Compute() {
     delete[] _fod;
     delete[] _matr1;
     delete _neighbors;
+    delete _bounds;
 }
 void Compute::CalculateDensity() {
-    int N = _param["N"].as<int>();
     float mass = _param["mass"].as<float>();
     float h = _param["h"].as<float>();
 
-    for (int i = 0; i < N; i++) {
-        float sum = 0.0;
-        float distance = 0.0;
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
 
-        std::vector<int> candidates = _neighbors->getNeighbors(i);
-        for (uint k = 0; k < candidates.size(); k++) {
-            int j = candidates.at(k);
+        for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+            float sum = 0.0;
+            float distance = 0.0;
 
-            distance = fastSqrt2(
-                (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
+            std::vector<int> candidates = std::vector<int>();
+            _neighbors->getNeighbors(i, candidates);
+            for (uint k = 0; k < candidates.size(); k++) {
+                int j = candidates.at(k);
+
+                distance = fastSqrt2(
+                    (_position[i * 3] - _position[j * 3]) * (_position[i * 3] - _position[j * 3])
                     + (_position[i * 3 + 1] - _position[j * 3 + 1]) * (_position[i * 3 + 1] - _position[j * 3 + 1])
                     + (_position[i * 3 + 2] - _position[j * 3 + 2]) * (_position[i * 3 + 2] - _position[j * 3 + 2])
-            );
-            if (distance <= h) sum += mass * _kernel_density->ValueOf(distance);
-        }
+                );
+                if (distance <= h) sum += mass * _kernel_density->ValueOf(distance);
+            }
 
-        _density[i] = sum;
+            _density[i] = sum;
+        }
     }
 }
 
@@ -162,7 +171,8 @@ void Compute::CalculateForces() {
         _force[iy] += mass * g;
 
         // 2-body forces
-        std::vector<int> candidates = _neighbors->getNeighbors(i);
+        std::vector<int> candidates = std::vector<int>();
+        _neighbors->getNeighbors(i, candidates);
         int jx, jy, jz;
 
         for (uint k = 0; k < candidates.size(); k++) {

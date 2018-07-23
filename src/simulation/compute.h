@@ -2,6 +2,7 @@
 
 #include "kernel/kernel.h"
 #include "data/neighbors.h"
+#include "util/parallel_bounds.h"
 #include <yaml-cpp/yaml.h>
 
 class Compute {
@@ -82,6 +83,11 @@ private:
 
     /// @var _neighbors Neighbors* A class used to get the neighbors of a particle
     Neighbors* _neighbors;
+
+    /// @var _bounds ParallelBounds A helper class to get the iteration bounds
+    ///     in case of parallel execution, where each thread covers only part
+    ///     of all particles
+    ParallelBounds* _bounds;
 
     /// @var _isFirstStep bool Flag to indicate if we are doing the first time
     ///     step, which requires special handling.

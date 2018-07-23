@@ -9,3 +9,4 @@ In short you are allowed to use, share and modify this work under the following 
 The following parts used, copied or modified by this work are available under the following licence:
 1. Class Vector3D derived from from http://cpp-wiki.wikidot.com/code:templated-3d-vector-class under CC-BY 3.0
 2. Library yaml-cpp used and copied from https://github.com/jbeder/yaml-cpp under MIT licence
+3. Library bitmap used and copied from https://github.com/ArashPartow/bitmap under MIT licence

@@ -41,6 +41,8 @@ In the parameter file we can specify the number of threads to be used with the p
 
 If you switch the cmake flag ```-DPARALLEL_BUILD=Flag``` you must afterwards run ```make clean``` and recompile the project with ```make -j``` as make will not recognize the flag as a reason to recompile.
 
+Please note that the flag given to the compiler in order to use openmp is specific for the compiler used and has to be hardcoded in the file CMakeLists.txt. If compilation fails for you compiler, please check what the correct flag is and modify the file CMakeLists.txt accordingly.
+
 ## Parameters
 The parameter file "default_parameter.yaml" contains all parameters that are intended to be changed without recompiling the project. You can find short descriptions within the file and more detailed ones in this document.
 

@@ -7,6 +7,7 @@
 #include "output/ascii_output.h"
 #include "simulation/compute.h"
 #include <yaml-cpp/yaml.h>
+#include <omp.h>
 
 /// Checks if there has been a SDL_QUIT event since the last time SDL events
 /// were checked.
@@ -74,6 +75,15 @@ void drawDebugView(DebugRenderer& r, Compute& c, YAML::Node& param) {
 
 int main() {
     YAML::Node param = YAML::LoadFile("default_parameter.yaml");
+
+    int nrOfThreads = param["nr_of_threads"].as<int>();
+    if (nrOfThreads > 1) {
+        omp_set_num_threads(nrOfThreads);
+        printf("Running as omp parallel execution with %d threads. This will fail if the cmake variable PARALLEL_BUILD was set to false.\n", nrOfThreads);
+    } else {
+        omp_set_num_threads(1);
+        printf("Running as serial execution. This will fail if the cmake variable PARALLEL_BUILD was set to true.\n");
+    }
 
     DebugRenderer renderer = DebugRenderer();
     renderer.Init(param["r_width"].as<int>(), param["r_height"].as<int>());

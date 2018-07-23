@@ -6,6 +6,11 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif (NOT CMAKE_BUILD_TYPE)
 
+# build parallel code as default
+if (NOT PARALLEL_BUILD)
+    set(PARALLEL_BUILD True)
+endif (NOT PARALLEL_BUILD)
+
 # add include dirs
 include_directories(
     src
@@ -15,9 +20,16 @@ include_directories(
 
 # add compiler flags
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic  -march=native -std=c++11")
+
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+
+# add parallel compiler flag and switch to MPI compatible compiler
+if ("${PARALLEL_BUILD}" STREQUAL "True")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -fopenmp")
+endif ("${PARALLEL_BUILD}" STREQUAL "True")
 
 # SPH project
 set(SOURCES
@@ -35,6 +47,7 @@ set(SOURCES
     "src/distribution/spherePacking.cpp"
     "src/distribution/volumeGrid.cpp"
     "src/distribution/whiteNoise.cpp"
+    "src/util/parallel_bounds.cpp"
     "src/util/random_pool.cpp"
     "src/output/debug_renderer.cpp"
     "src/output/vtk.cpp"

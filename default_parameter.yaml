@@ -8,6 +8,9 @@ N: 1000 # number of particles
 h: 0.15 # smoothing length, approx 4 times particle size
 particle_size: 0.0361 # particle radius
 rho0: 1000.0 # rest density
+nr_of_threads: 2 # The number of threads to use. Usually chosen as the number
+    # of physical processors or supported number of hyperthreads. For serial
+    # execution set this to a value of 1
 
 
 ## Initialization parameters

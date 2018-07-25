@@ -155,6 +155,20 @@ void Compute::CalculateForces() {
     float h = _param["h"].as<float>();
     float mu = _param["mu"].as<float>();
 
+    // Reset force. This cannot be done in the main particle loop because
+    // we'd be overwriting already calculated forces on a particle when
+    // the iteration is done for the particle, due to the force symmetry
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
+
+        for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+            _force[i * 3] = 0.0;
+            _force[i * 3 + 1] = 0.0;
+            _force[i * 3 + 2] = 0.0;
+        }
+    }
+
     // now iterate over the particles and calculate the forces. we only do so
     // for other particles in the neighborhood with j > i and then apply the
     // forces to both particles in opposite directions. this uses the force
@@ -167,11 +181,6 @@ void Compute::CalculateForces() {
         int iz = ix + 2;
 
         for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
-            // Reset force
-            _force[ix] = 0.0;
-            _force[iy] = 0.0;
-            _force[iz] = 0.0;
-
             // calculate kinetic energy for debugging purposes
             kinNrg += 0.5 * mass * (_velocity[ix] * _velocity[ix]
                 + _velocity[iy] * _velocity[iy]

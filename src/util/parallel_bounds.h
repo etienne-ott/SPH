@@ -5,7 +5,7 @@ private:
     /// @var nrOfThreads int The total number of threads
     int nrOfThreads;
 
-    /// @var N int THe total number of particles
+    /// @var N int The total number of particles
     int N;
 
 public:
@@ -14,6 +14,11 @@ public:
     /// @param nrOfThreads int The number of threads
     /// @param N int The number of particles
     ParallelBounds(int nrOfThreads, int N);
+
+    void setNrOfThreads(int newVal);
+    int getNrOfThreads();
+    void setN(int newVal);
+    int getN();
 
     /// Returns the lower bound (inclusive) of the particle indices
     /// the thread with the given thread number should cover. This method

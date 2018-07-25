@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "util/parallel_bounds.h"
 
 class Neighbors {
 private:
@@ -18,7 +19,7 @@ public:
 
     ~Neighbors();
 
-    void sortParticlesIntoGrid(float* positions);
+    void sortParticlesIntoGrid(float* positions, ParallelBounds& pBounds);
 
     void getNeighbors(int idx, std::vector<int>& list);
 };

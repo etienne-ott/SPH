@@ -1,4 +1,6 @@
 #include "data/neighbors.h"
+#include "util/parallel_bounds.h"
+#include <omp.h>
 #include <cmath>
 #include <iostream>
 
@@ -29,25 +31,38 @@ Neighbors::~Neighbors() {
     delete[] this->indices;
 }
 
-void Neighbors::sortParticlesIntoGrid(float* positions) {
+void Neighbors::sortParticlesIntoGrid(float* positions, ParallelBounds& pBounds) {
     // clear old data
-    for (uint i = 0; i < this->grid.size(); i++) {
-        this->grid.at(i).clear();
+    // we must use a different bounds instance here because the grid size
+    // is different from the number of particles
+    ParallelBounds gBounds = ParallelBounds(pBounds.getNrOfThreads(), grid.size());
+
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
+
+        for (int i = gBounds.lower(threadNum); i < gBounds.upper(threadNum); i++) {
+            this->grid.at(i).clear();
+        }
     }
 
     // sort particles into grid
-    float invh = 1.f / h;
+    #pragma omp parallel
+    {
+        float invh = 1.f / h;
+        int threadNum = omp_get_thread_num();
 
-    for (int i = 0; i < N; i++) {
-        int idx_x = std::floor((positions[i * 3] - lx) * invh);
-        int idx_y = std::floor((positions[i * 3 + 1] - ly) * invh);
-        int idx_z = std::floor((positions[i * 3 + 2] - lz) * invh);
+        for (int i = pBounds.lower(threadNum); i < pBounds.upper(threadNum); i++) {
+            int idx_x = std::floor((positions[i * 3] - lx) * invh);
+            int idx_y = std::floor((positions[i * 3 + 1] - ly) * invh);
+            int idx_z = std::floor((positions[i * 3 + 2] - lz) * invh);
 
-        this->indices[i * 3] = idx_x;
-        this->indices[i * 3 + 1] = idx_y;
-        this->indices[i * 3 + 2] = idx_z;
+            this->indices[i * 3] = idx_x;
+            this->indices[i * 3 + 1] = idx_y;
+            this->indices[i * 3 + 2] = idx_z;
 
-        this->grid.at(idx_z * size_y * size_x + idx_y * size_x + idx_x).push_back(i);
+            this->grid.at(idx_z * size_y * size_x + idx_y * size_x + idx_x).push_back(i);
+        }
     }
 }
 

@@ -107,7 +107,7 @@ void Compute::CalculateDensity() {
 }
 
 void Compute::Timestep() {
-    _neighbors->sortParticlesIntoGrid(_position);
+    _neighbors->sortParticlesIntoGrid(_position, *_bounds);
 
     this->CalculateDensity();
     this->CalculatePressure();
@@ -125,15 +125,21 @@ void Compute::CalculatePressure() {
         k_mod = k * rho0 / gamma;
     std::string model = _param["pressure_model"].as<std::string>();
 
-    if (model == "P_GAMMA_ELASTIC") {
-        for (int i = 0; i < _param["N"].as<int>(); i++) {
-            _pressure[i] = (float)(k_mod * (pow(_density[i] / rho0, gamma) - 1.f));
-            _pressure[i] = _pressure[i] * (_pressure[i] > 0);
-        }
-    } else if (model == "P_DIFFERENCE") {
-        for (int i = 0; i < _param["N"].as<int>(); i++) {
-            _pressure[i] = k * (_density[i] - rho0);
-            _pressure[i] = _pressure[i] * (_pressure[i] > 0);
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
+
+        if (model == "P_GAMMA_ELASTIC") {
+            for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+                _pressure[i] = (float)(k_mod * (pow(_density[i] / rho0, gamma) - 1.f));
+                _pressure[i] = _pressure[i] * (_pressure[i] > 0);
+            }
+
+        } else if (model == "P_DIFFERENCE") {
+            for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+                _pressure[i] = k * (_density[i] - rho0);
+                _pressure[i] = _pressure[i] * (_pressure[i] > 0);
+            }
         }
     }
 }
@@ -149,82 +155,87 @@ void Compute::CalculateForces() {
     float h = _param["h"].as<float>();
     float mu = _param["mu"].as<float>();
 
-    // reset forces
-    for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _force[i * 3] = 0.0;
-        _force[i * 3 + 1] = 0.0;
-        _force[i * 3 + 2] = 0.0;
-    }
-
     // now iterate over the particles and calculate the forces. we only do so
     // for other particles in the neighborhood with j > i and then apply the
     // forces to both particles in opposite directions. this uses the force
     // symmetry to improve performance
-    int ix = 0, iy = 1, iz = 2;
-    for (int i = 0; i < _param["N"].as<int>(); i++) {
-        // calculate kinetic energy for debugging purposes
-        kinNrg += 0.5 * mass * (_velocity[ix] * _velocity[ix]
-            + _velocity[iy] * _velocity[iy]
-            + _velocity[iz] * _velocity[iz]);
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
+        int ix = _bounds->lower(threadNum) * 3;
+        int iy = ix + 1;
+        int iz = ix + 2;
 
-        // 1-body forces, currently only gravity
-        _force[iy] += mass * g;
+        for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+            // Reset force
+            _force[ix] = 0.0;
+            _force[iy] = 0.0;
+            _force[iz] = 0.0;
 
-        // 2-body forces
-        std::vector<int> candidates = std::vector<int>();
-        _neighbors->getNeighbors(i, candidates);
-        int jx, jy, jz;
+            // calculate kinetic energy for debugging purposes
+            kinNrg += 0.5 * mass * (_velocity[ix] * _velocity[ix]
+                + _velocity[iy] * _velocity[iy]
+                + _velocity[iz] * _velocity[iz]);
 
-        for (uint k = 0; k < candidates.size(); k++) {
-            int j = candidates.at(k);
+            // 1-body forces, currently only gravity
+            _force[iy] += mass * g;
 
-            if (j <= i) {
-                continue;
+            // 2-body forces
+            std::vector<int> candidates = std::vector<int>();
+            _neighbors->getNeighbors(i, candidates);
+            int jx, jy, jz;
+
+            for (uint k = 0; k < candidates.size(); k++) {
+                int j = candidates.at(k);
+
+                if (j <= i) {
+                    continue;
+                }
+
+                jx = j * 3;
+                jy = j * 3 + 1;
+                jz = j * 3 + 2;
+
+                // Calculate distance vector
+                _dr[0] = _position[ix] - _position[jx];
+                _dr[1] = _position[iy] - _position[jy];
+                _dr[2] = _position[iz] - _position[jz];
+                distance = fastSqrt2(_dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]);
+
+                // Pressure force
+                _kernel_pressure->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
+                tmp = mass * mass * (_pressure[i] / (_density[i] * _density[i])
+                    + _pressure[j] / (_density[j] * _density[j]));
+
+                _force[ix] -= tmp * _fod[0];
+                _force[iy] -= tmp * _fod[1];
+                _force[iz] -= tmp * _fod[2];
+
+                _force[jx] += tmp * _fod[0];
+                _force[jy] += tmp * _fod[1];
+                _force[jz] += tmp * _fod[2];
+
+                // Viscosity force
+                _kernel_viscosity->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
+                dvx = _velocity[ix] - _velocity[jx];
+                dvy = _velocity[iy] - _velocity[jy];
+                dvz = _velocity[iz] - _velocity[jz];
+                tmp = 2.f * mass * mass * mu / _density[j] / (
+                    _dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]
+                    + epsilon * h * h
+                );
+
+                _force[ix] += tmp * dvx * (_dr[0] * _fod[0]);
+                _force[iy] += tmp * dvy * (_dr[1] * _fod[1]);
+                _force[iz] += tmp * dvz * (_dr[2] * _fod[2]);
+
+                _force[jx] -= tmp * dvx * (_dr[0] * _fod[0]);
+                _force[jy] -= tmp * dvy * (_dr[1] * _fod[1]);
+                _force[jz] -= tmp * dvz * (_dr[2] * _fod[2]);
             }
 
-            jx = j * 3;
-            jy = j * 3 + 1;
-            jz = j * 3 + 2;
-
-            // Calculate distance vector
-            _dr[0] = _position[ix] - _position[jx];
-            _dr[1] = _position[iy] - _position[jy];
-            _dr[2] = _position[iz] - _position[jz];
-            distance = fastSqrt2(_dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]);
-
-            // Pressure force
-            _kernel_pressure->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
-            tmp = mass * mass * (_pressure[i] / (_density[i] * _density[i])
-                + _pressure[j] / (_density[j] * _density[j]));
-
-            _force[ix] -= tmp * _fod[0];
-            _force[iy] -= tmp * _fod[1];
-            _force[iz] -= tmp * _fod[2];
-
-            _force[jx] += tmp * _fod[0];
-            _force[jy] += tmp * _fod[1];
-            _force[jz] += tmp * _fod[2];
-
-            // Viscosity force
-            _kernel_viscosity->FOD(_dr[0], _dr[1], _dr[2], distance, _fod);
-            dvx = _velocity[ix] - _velocity[jx];
-            dvy = _velocity[iy] - _velocity[jy];
-            dvz = _velocity[iz] - _velocity[jz];
-            tmp = 2.f * mass * mass * mu / _density[j] / (
-                _dr[0] * _dr[0] + _dr[1] * _dr[1] + _dr[2] * _dr[2]
-                + epsilon * h * h
-            );
-
-            _force[ix] += tmp * dvx * (_dr[0] * _fod[0]);
-            _force[iy] += tmp * dvy * (_dr[1] * _fod[1]);
-            _force[iz] += tmp * dvz * (_dr[2] * _fod[2]);
-
-            _force[jx] -= tmp * dvx * (_dr[0] * _fod[0]);
-            _force[jy] -= tmp * dvy * (_dr[1] * _fod[1]);
-            _force[jz] -= tmp * dvz * (_dr[2] * _fod[2]);
+            ix += 3; iy += 3; iz += 3;
         }
-
-        ix += 3; iy += 3; iz += 3;
     }
 
     printf("Kinetic energy: %f;", kinNrg);
@@ -233,35 +244,37 @@ void Compute::CalculateForces() {
 void Compute::VelocityIntegration(bool firstStep) {
     float inv_mass = 1.f / _param["mass"].as<float>();
     float dt = _param["dt"].as<float>();
-    float factor1, factor2;
+    float factor1 = dt * inv_mass * 0.5f,
+        factor2 = dt * inv_mass;
 
-    if (firstStep) {
-        int ix = 0, iy = 1, iz = 2;
-        factor1 = dt * inv_mass * 0.5;
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
+        int ix = _bounds->lower(threadNum) * 3;
+        int iy = ix + 1;
+        int iz = ix + 2;
 
-        for (int i = 0; i < _param["N"].as<int>(); i++) {
-            _velocity_halfs[ix] = _velocity[ix] +  factor1 * _force[ix];
-            _velocity_halfs[iy] = _velocity[iy] +  factor1 * _force[iy];
-            _velocity_halfs[iz] = _velocity[iz] +  factor1 * _force[iz];
-            ix += 3; iy += 3; iz += 3;
+        if (firstStep) {
+            for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+                _velocity_halfs[ix] = _velocity[ix] +  factor1 * _force[ix];
+                _velocity_halfs[iy] = _velocity[iy] +  factor1 * _force[iy];
+                _velocity_halfs[iz] = _velocity[iz] +  factor1 * _force[iz];
+                ix += 3; iy += 3; iz += 3;
+            }
+
+        } else {
+            for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+                _velocity_halfs[ix] += factor2 * _force[ix];
+                _velocity_halfs[iy] += factor2 * _force[iy];
+                _velocity_halfs[iz] += factor2 * _force[iz];
+
+                _velocity[ix] = _velocity_halfs[ix] + factor1 * _force[ix];
+                _velocity[iy] = _velocity_halfs[iy] + factor1 * _force[iy];
+                _velocity[iz] = _velocity_halfs[iz] + factor1 * _force[iz];
+
+                ix += 3; iy += 3; iz += 3;
+            }
         }
-        return;
-    }
-
-    int ix = 0, iy = 1, iz = 2;
-    factor1 = 0.5f * dt * inv_mass;
-    factor2 = dt * inv_mass;
-
-    for (int i = 0; i < _param["N"].as<int>(); i++) {
-        _velocity_halfs[ix] += factor2 * _force[ix];
-        _velocity_halfs[iy] += factor2 * _force[iy];
-        _velocity_halfs[iz] += factor2 * _force[iz];
-
-        _velocity[ix] = _velocity_halfs[ix] + factor1 * _force[ix];
-        _velocity[iy] = _velocity_halfs[iy] + factor1 * _force[iy];
-        _velocity[iz] = _velocity_halfs[iz] + factor1 * _force[iz];
-
-        ix += 3; iy += 3; iz += 3;
     }
 }
 
@@ -286,63 +299,69 @@ void Compute::PositionIntegration() {
     // direction
     // @todo in fact, the reflection is too crude, since the kernel seemingly
     // extends into the wall, but should be "squished" against it
-    float newval = 0.0;
-    float dampening = _param["dampening"].as<float>();
-    int ix = 0, iy = 1, iz = 2;
+    #pragma omp parallel
+    {
+        int threadNum = omp_get_thread_num();
+        int ix = _bounds->lower(threadNum) * 3;
+        int iy = ix + 1;
+        int iz = ix + 2;
+        float newval = 0.0;
+        float dampening = _param["dampening"].as<float>();
 
-    for (int i = 0; i < _param["N"].as<int>(); i++) {
-        bool damp = false;
+        for (int i = _bounds->lower(threadNum); i < _bounds->upper(threadNum); i++) {
+            bool damp = false;
 
-        // Reflection of x component
-        newval = _position[ix] + _velocity_halfs[ix] * dt;
-        if (newval < lx) {
-            damp = true;
-            _position[ix] = lx + fabs(lx - newval);
-            _velocity_halfs[ix] = -_velocity_halfs[ix];
-        } else if (newval > ux) {
-            damp = true;
-            _position[ix] = ux - fabs(newval - ux);
-            _velocity_halfs[ix] = -_velocity_halfs[ix];
-        } else {
-            _position[ix] = newval;
+            // Reflection of x component
+            newval = _position[ix] + _velocity_halfs[ix] * dt;
+            if (newval < lx) {
+                damp = true;
+                _position[ix] = lx + fabs(lx - newval);
+                _velocity_halfs[ix] = -_velocity_halfs[ix];
+            } else if (newval > ux) {
+                damp = true;
+                _position[ix] = ux - fabs(newval - ux);
+                _velocity_halfs[ix] = -_velocity_halfs[ix];
+            } else {
+                _position[ix] = newval;
+            }
+
+            // Reflection of y component
+            newval = _position[iy] + _velocity_halfs[iy] * dt;
+            if (newval < ly) {
+                damp = true;
+                _position[iy] = ly + fabs(ly - newval);
+                _velocity_halfs[iy] = -_velocity_halfs[iy];
+            } else if (newval > uy) {
+                damp = true;
+                _position[iy] = uy - fabs(newval - uy);
+                _velocity_halfs[iy] = -_velocity_halfs[iy];
+            } else {
+                _position[iy] = newval;
+            }
+
+            // Reflection of z component
+            newval = _position[iz] + _velocity_halfs[iz] * dt;
+            if (newval < lz) {
+                damp = true;
+                _position[iz] = lz + fabs(lz - newval);
+                _velocity_halfs[iz] = -_velocity_halfs[iz];
+            } else if (newval > uz) {
+                damp = true;
+                _position[iz] = uz - fabs(newval - uz);
+                _velocity_halfs[iz] = -_velocity_halfs[iz];
+            } else {
+                _position[iz] = newval;
+            }
+
+            // Dampening
+            if (damp) {
+                _velocity_halfs[ix] *= dampening;
+                _velocity_halfs[iy] *= dampening;
+                _velocity_halfs[iz] *= dampening;
+            }
+
+            ix += 3; iy += 3; iz += 3;
         }
-
-        // Reflection of y component
-        newval = _position[iy] + _velocity_halfs[iy] * dt;
-        if (newval < ly) {
-            damp = true;
-            _position[iy] = ly + fabs(ly - newval);
-            _velocity_halfs[iy] = -_velocity_halfs[iy];
-        } else if (newval > uy) {
-            damp = true;
-            _position[iy] = uy - fabs(newval - uy);
-            _velocity_halfs[iy] = -_velocity_halfs[iy];
-        } else {
-            _position[iy] = newval;
-        }
-
-        // Reflection of z component
-        newval = _position[iz] + _velocity_halfs[iz] * dt;
-        if (newval < lz) {
-            damp = true;
-            _position[iz] = lz + fabs(lz - newval);
-            _velocity_halfs[iz] = -_velocity_halfs[iz];
-        } else if (newval > uz) {
-            damp = true;
-            _position[iz] = uz - fabs(newval - uz);
-            _velocity_halfs[iz] = -_velocity_halfs[iz];
-        } else {
-            _position[iz] = newval;
-        }
-
-        // Dampening
-        if (damp) {
-            _velocity_halfs[ix] *= dampening;
-            _velocity_halfs[iy] *= dampening;
-            _velocity_halfs[iz] *= dampening;
-        }
-
-        ix += 3; iy += 3; iz += 3;
     }
 }
 

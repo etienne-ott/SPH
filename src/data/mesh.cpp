@@ -129,6 +129,7 @@ void Mesh::loadMeshFromOBJFile(std::string filepath)
             if (!foundMatch) {
                 // Okay, we have no idea what format this is
                 printf("Mesh file format not supported. More info in documentation.\n");
+                fclose(file);
                 return;
             }
 
@@ -148,13 +149,14 @@ void Mesh::loadMeshFromOBJFile(std::string filepath)
         }
     }
 
+    fclose(file);
+
     // correct indizes if necessary
     if (!foundZeroIndex) {
         for (uint i = 0; i < this->faces.size(); i++) {
             this->faces[i] -= 1;
         }
     }
-
 
     this->needsRecalculation[RecalculationFlags::BoundingBox] = true;
     this->needsRecalculation[RecalculationFlags::FaceNormals] = true;

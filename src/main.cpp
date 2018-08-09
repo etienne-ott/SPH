@@ -85,9 +85,9 @@ int main() {
         printf("Running as serial execution. This will fail if the cmake variable PARALLEL_BUILD was set to true.\n");
     }
 
-    DebugRenderer renderer = DebugRenderer();
-    renderer.Init(param["r_width"].as<int>(), param["r_height"].as<int>());
-    renderer.setCameraPosition(
+    DebugRenderer* renderer = new DebugRenderer();
+    renderer->Init(param["r_width"].as<int>(), param["r_height"].as<int>());
+    renderer->setCameraPosition(
         param["camera_x"].as<float>(),
         param["camera_y"].as<float>(),
         param["camera_z"].as<float>()
@@ -113,7 +113,7 @@ int main() {
     float t = 0.0;
     int step = 1;
 
-    drawDebugView(renderer, compute, param);
+    drawDebugView(*renderer, compute, param);
 
     while (t < param["tend"].as<float>() && running) {
         printf("Current timestep %f; ", t);
@@ -134,9 +134,9 @@ int main() {
             );
         }
 
-        drawDebugView(renderer, compute, param);
+        drawDebugView(*renderer, compute, param);
         if (param["write_bmp"].as<bool>()) {
-            checkWriteBMPOutput(renderer, step);
+            checkWriteBMPOutput(*renderer, step);
         }
 
         t += param["dt"].as<float>();
@@ -153,6 +153,8 @@ int main() {
         SDL_Delay(30);
         running = !checkQuitSDLEvent(&event);
     }
+
+    delete renderer;
 
     return 0;
 }
